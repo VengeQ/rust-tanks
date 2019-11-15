@@ -24,10 +24,12 @@ use std::path::Path;
 use graphics::types::Scalar;
 use graphics::radians::Radians;
 
+pub const FSIZE: f64 = 20.0;
+pub const SIZE: usize = 20;
 
 fn main() {
     let opengl = OpenGL::V3_2;
-    let settings = WindowSettings::new("Fifteen", [800, 600])
+    let settings = WindowSettings::new("Fifteen", [600, 600])
         .graphics_api(opengl)
         .resizable(false)
         .exit_on_esc(true);
