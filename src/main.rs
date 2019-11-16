@@ -15,18 +15,10 @@ use piston::window::WindowSettings;
 use piston::event_loop::*;
 use piston::input::*;
 use glutin_window::GlutinWindow as Window;
-use opengl_graphics::{OpenGL, Filter, GlGraphics, GlyphCache, TextureSettings, Texture};
-use graphics::{Rectangle, CircleArc};
-use crate::graphics::Transformed;
-
-use std::fs::File;
-use piston_window::{G2dTexture, Flip, PistonWindow, image};
-use std::path::Path;
-use graphics::types::Scalar;
-use graphics::radians::Radians;
+use opengl_graphics::{OpenGL, Filter, GlGraphics, GlyphCache, TextureSettings};
+use piston_window::PistonWindow;
 use crate::controller::GameController;
 use crate::view::{GameView, GameViewSettings};
-use std::borrow::Borrow;
 
 pub const FSIZE: f64 = 20.0;
 pub const SIZE: usize = 20;
@@ -57,10 +49,8 @@ fn main() {
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c, g| {
                 use graphics::clear;
-
                 clear([1.0; 4], g);
-                game_view.draw(&game_controller, glyphs, &c, g, &texture_settings);
-                // game_view.draw_images(&game_controller, &c, g, &texture_settings);
+                game_view.draw(&game_controller, glyphs, &c, g);
             });
         }
     }

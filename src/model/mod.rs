@@ -1,4 +1,4 @@
-use super::{FSIZE, SIZE};
+use super::CELL_COUNT;
 
 #[derive(Default, Debug)]
 pub struct Game {
@@ -10,7 +10,7 @@ impl Game {
         Game { board: Default::default() }
     }
 
-    pub fn board(&self) -> &Vec<Vec<(Cell)>> {
+    pub fn board(&self) -> &Vec<Vec<Cell>> {
         &self.board.cell
     }
 
@@ -20,26 +20,34 @@ impl Game {
 
     pub fn lvl1(&mut self) {
         let mut cells = Vec::new();
-        let size: usize = 30;
+        let size: usize = CELL_COUNT;
         let y = vec![Cell::Clear; size];
-        for x in 0..size {
+        for _ in 0..size {
             cells.push(y.clone());
         }
         cells[15][14] = Cell::Wall;
         cells[14][15] = Cell::Wall;
         cells[14][14] = Cell::Wall;
         cells[15][15] = Cell::Wall;
+
+        for i in 10..19{
+            cells[i][25] = Cell::Wall;
+        }
+
         let min = 8_usize;
         let max = 21_usize;
-        for i in 0..size {
-            for j in 0..size {
-                if (i == min && (j >= min && j <= max)) || (j == min && (i > min && i < max))
-                    || (i == max && (j >= min && j <= max)) || j == max && (i > min && i < max)
-                {
-                    cells[i][j] = Cell::Water;
-                }
+
+        cells = cells.iter()
+            .enumerate().map(move |v| v.1.iter()
+            .enumerate().map(move |x| {
+            if (v.0 == min && (x.0 >= min && x.0 <= max)) || (x.0 == min && (v.0 > min && v.0 < max))
+                || (v.0 == max && (x.0 >= min && x.0 <= max)) || x.0 == max && (v.0 > min && v.0 < max) {
+                Cell::Water
+            } else {
+                *x.1
             }
-        }
+        }).collect()).collect();
+
         let board = Board {
             size: [size as f64; 2],
             cell: cells,
@@ -51,7 +59,7 @@ impl Game {
 #[derive(Default, Debug, PartialOrd, PartialEq)]
 pub struct Board {
     size: [f64; 2],
-    cell: Vec<Vec<(Cell)>>,
+    cell: Vec<Vec<Cell>>,
 }
 
 

@@ -1,8 +1,5 @@
 use opengl_graphics::{Texture,TextureSettings};
 
-struct CustomTextures{
-
-}
 
 pub fn texture_creator(texture_settings:&TextureSettings) -> (Texture,Texture, Texture){
     let assets = find_folder::Search::ParentsThenKids(3, 3)
