@@ -19,7 +19,7 @@ pub enum GameState {
 impl GameController {
 
     pub fn new(game: Game) -> Self {
-        let cur_board_size =  &game.cell_size()[0] * FSIZE;
+        let cur_board_size =  game.cell_size()[0] * FSIZE;
         Self {
             game,
             game_state: GameState::Prepare,

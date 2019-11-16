@@ -29,7 +29,7 @@ impl Game {
         cells[14][15] = Cell::Wall;
         cells[14][14] = Cell::Wall;
         cells[15][15] = Cell::Wall;
-        let min =8_usize;
+        let min = 8_usize;
         let max = 21_usize;
         for i in 0..size {
             for j in 0..size {
@@ -40,8 +40,6 @@ impl Game {
                 }
             }
         }
-
-
         let board = Board {
             size: [size as f64; 2],
             cell: cells,

@@ -66,29 +66,10 @@ impl GameView {
         };
     }
 
-    pub fn draw_images<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G, texture_settings: &TextureSettings) {
-        let ref settings = self.settings;
-        for y in 0..CELL_COUNT {
-            for x in 0..CELL_COUNT {
-                let x1 = settings.position[0] + x as f64 / CELL_COUNT as f64 * settings.size;
-                let y1 = settings.position[1] + y as f64 / CELL_COUNT as f64* settings.size;
-                let x2 = x1 + settings.size / CELL_COUNT as f64;
-                let y2 = x2 + settings.size / CELL_COUNT as f64;
-                match controller.game.board()[x][y] {
-                    Cell::Water => {
-                        println!(" water in (x,y):{} {}", x, y);
-                        image(&self.settings.water_texture, c.transform.trans(x1, y1), g);
-                    }
-
-                    _ => {}
-                };
-            }
-        }
-    }
 
     fn draw_progress<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, glyphs: &mut C, c: &Context, g: &mut G, texture_settings: &TextureSettings) {
         use graphics::{Line, Rectangle};
-        let ref settings = self.settings;
+        let settings =&self.settings;
         let board_rect = [
             settings.position[0], settings.position[1],
             settings.size, settings.size,

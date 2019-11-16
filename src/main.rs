@@ -44,7 +44,7 @@ fn main() {
     let mut events = Events::new(EventSettings::new().lazy(true)); //not lazy.
     let mut gl = GlGraphics::new(opengl);
     let texture_settings = TextureSettings::new().filter(Filter::Nearest);
-    let ref mut glyphs = GlyphCache::new("assets/amazone.ttf", (), texture_settings).expect("Could not load font");
+    let glyphs = &mut GlyphCache::new("assets/amazone.ttf", (), texture_settings).expect("Could not load font");
     let mut game = Game::new();
     game.lvl1();
     let textures = crate::view::texture_creator(&texture_settings);
