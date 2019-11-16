@@ -20,19 +20,21 @@ impl Game {
 
     pub fn lvl1(&mut self) {
         let mut cells = Vec::new();
-        let size: usize = 20;
+        let size: usize = 30;
         let y = vec![Cell::Clear; size];
         for x in 0..size {
             cells.push(y.clone());
         }
-        cells[10][10] = Cell::Wall;
-        cells[9][10] = Cell::Wall;
-        cells[10][9] = Cell::Wall;
-        cells[9][9] = Cell::Wall;
+        cells[15][14] = Cell::Wall;
+        cells[14][15] = Cell::Wall;
+        cells[14][14] = Cell::Wall;
+        cells[15][15] = Cell::Wall;
+        let min =8_usize;
+        let max = 21_usize;
         for i in 0..size {
             for j in 0..size {
-                if (i == 5 && (j >= 5 && j <= 14)) || (j == 5 && (i > 5 && i < 14))
-                    || (i == 14 && (j >= 5 && j <= 14)) || j == 14 && (i > 5 && i < 14)
+                if (i == min && (j >= min && j <= max)) || (j == min && (i > min && i < max))
+                    || (i == max && (j >= min && j <= max)) || j == max && (i > min && i < max)
                 {
                     cells[i][j] = Cell::Water;
                 }

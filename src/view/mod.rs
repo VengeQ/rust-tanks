@@ -1,7 +1,7 @@
 mod textures;
 
 use graphics::types::Color;
-use crate::{FSIZE, SIZE};
+use crate::{FSIZE, SIZE, CELL_COUNT};
 
 use piston::window::WindowSettings;
 use piston::event_loop::*;
@@ -30,19 +30,23 @@ pub struct GameViewSettings {
     water_color: Color,
     clear_color: Color,
     wall_color: Color,
-    water_texture:Texture
+    water_texture: Texture,
+    wall_texture: Texture,
+    ground_texture:Texture
 }
 
 impl GameViewSettings {
-    pub fn new(board_size: f64, texture:Texture) -> Self {
+    pub fn new(board_size: f64, texture: (Texture, Texture, Texture)) -> Self {
         Self {
             position: [20.0, 20.0],
-            size: FSIZE * board_size,
+            size: board_size,
             background_color: [0.5, 0.5, 0.5, 1.0],
             water_color: [0.0, 0.0, 0.8, 1.0],
             clear_color: [1.0, 1.0, 1.0, 1.0],
             wall_color: [0.3, 0.1, 0.1, 1.0],
-            water_texture:texture
+            water_texture: texture.0,
+            wall_texture: texture.1,
+            ground_texture:texture.2
         }
     }
 }
@@ -56,24 +60,24 @@ impl GameView {
         Self { settings }
     }
 
-    pub fn draw<G: Graphics, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, glyphs: &mut C, c: &Context, g: &mut G, texture_settings: &TextureSettings) {
+    pub fn draw<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, glyphs: &mut C, c: &Context, g: &mut G, texture_settings: &TextureSettings) {
         match controller.game_state {
             _ => { self.draw_progress(controller, glyphs, c, g, texture_settings) }
         };
     }
 
-    pub fn draw_images<G: Graphics<Texture = Texture>>(&self, controller: &GameController, c: &Context, g: &mut G, texture_settings: &TextureSettings) {
+    pub fn draw_images<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G, texture_settings: &TextureSettings) {
         let ref settings = self.settings;
-        for y in 0..SIZE {
-            for x in 0..SIZE {
-                let x1 = settings.position[0] + x as f64 / FSIZE * settings.size;
-                let y1 = settings.position[1] + y as f64 / FSIZE * settings.size;
-                let x2 = x1 + settings.size / FSIZE;
-                let y2 = x2 + settings.size / FSIZE;
+        for y in 0..CELL_COUNT {
+            for x in 0..CELL_COUNT {
+                let x1 = settings.position[0] + x as f64 / CELL_COUNT as f64 * settings.size;
+                let y1 = settings.position[1] + y as f64 / CELL_COUNT as f64* settings.size;
+                let x2 = x1 + settings.size / CELL_COUNT as f64;
+                let y2 = x2 + settings.size / CELL_COUNT as f64;
                 match controller.game.board()[x][y] {
                     Cell::Water => {
-                        println!(" water in (x,y):{} {}",  x, y);
-                        image(&self.settings.water_texture, c.transform.trans(x1,y1), g);
+                        println!(" water in (x,y):{} {}", x, y);
+                        image(&self.settings.water_texture, c.transform.trans(x1, y1), g);
                     }
 
                     _ => {}
@@ -82,7 +86,7 @@ impl GameView {
         }
     }
 
-    fn draw_progress<G: Graphics, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, glyphs: &mut C, c: &Context, g: &mut G, texture_settings: &TextureSettings) {
+    fn draw_progress<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, glyphs: &mut C, c: &Context, g: &mut G, texture_settings: &TextureSettings) {
         use graphics::{Line, Rectangle};
         let ref settings = self.settings;
         let board_rect = [
@@ -90,21 +94,13 @@ impl GameView {
             settings.size, settings.size,
         ];
         Rectangle::new(settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
-        let assets = find_folder::Search::ParentsThenKids(3, 3)
-            .for_folder("assets").unwrap();
-        let water_texture_path = assets.join("water.png");
-        let water_texture = Texture::from_path(
-            water_texture_path,
-            texture_settings,
-        ).unwrap();
 
-
-        for y in 0..SIZE {
-            for x in 0..SIZE {
-                let x1 = settings.position[0] + x as f64 / FSIZE * settings.size;
-                let y1 = settings.position[1] + y as f64 / FSIZE * settings.size;
-                let x2 = x1 + settings.size / FSIZE;
-                let y2 = x2 + settings.size / FSIZE;
+        for y in 0..CELL_COUNT {
+            for x in 0..CELL_COUNT {
+                let x1 = settings.position[0] + FSIZE*x as f64;
+                let y1 = settings.position[1] + FSIZE*y as f64;
+                let x2 = x1 + settings.size / CELL_COUNT as f64;
+                let y2 = x2 + settings.size / CELL_COUNT as f64;
 
                 let cell_rect = [
                     x1, y1,
@@ -113,15 +109,13 @@ impl GameView {
 
                 match controller.game.board()[x][y] {
                     Cell::Clear => {
-                        //   println!("rect:{:?}   clear in (x,y):{} {}",cell_rect,x, y);
-                        Rectangle::new(settings.clear_color)
-                            .draw(cell_rect, &c.draw_state, c.transform, g);
+                        image(&self.settings.ground_texture, c.transform.trans(x1, y1), g);
                     }
                     Cell::Water => {
+                        image(&self.settings.water_texture, c.transform.trans(x1, y1), g);
                     }
                     Cell::Wall => {
-                        Rectangle::new(settings.wall_color)
-                            .draw(cell_rect, &c.draw_state, c.transform, g);
+                        image(&self.settings.wall_texture, c.transform.trans(x1, y1), g);
                     }
                 };
             }
