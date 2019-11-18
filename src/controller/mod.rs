@@ -3,6 +3,7 @@ use super::{CELL_COUNT};
 use piston::input::{GenericEvent, Button, MouseButton, Key};
 use crate::model::{Orientation, Cell};
 
+#[derive(Clone,Debug)]
 pub struct GameController {
     pub game: super::model::Game,
     pub game_state: GameState,
@@ -22,6 +23,7 @@ pub enum GameState {
 #[allow(dead_code)]
 pub struct EndLevel(usize);
 
+///ToDo Separate 'position' to 'position' and 'orientation'
 impl GameController {
     pub fn new(game: Game) -> Self {
         Self {
@@ -31,7 +33,7 @@ impl GameController {
             cursor_pos: [0_f64; 2],
         }
     }
-    //return new position
+    //return new position or previous if new position incorrect
     fn move_tank(&mut self, direction: Orientation) -> ([usize; 2], Orientation) {
         let (x, y) = (self.position.0[0], self.position.0[1]);
 

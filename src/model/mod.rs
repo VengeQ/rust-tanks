@@ -1,6 +1,6 @@
 use super::CELL_COUNT;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Game {
     board: Board,
 }
@@ -63,7 +63,7 @@ impl Game {
     }
 }
 
-#[derive(Default, Debug, PartialOrd, PartialEq)]
+#[derive(Default, Debug, PartialOrd, PartialEq, Clone)]
 pub struct Board {
     size: [f64; 2],
     cell: Vec<Vec<(Cell,Orientation)>>,
@@ -93,7 +93,7 @@ mod tests {
     #[test]
     fn new_game_test() {
         let g = Game::new();
-        assert_eq!(g.board.cell, Vec::<Vec<Cell>>::new());
+        assert_eq!(g.board.cell, Vec::<Vec<(Cell,Orientation)>>::new());
         assert_eq!(g.board.size, [0.0; 2]);
     }
 
@@ -101,10 +101,10 @@ mod tests {
     fn lvl1_test() {
         let mut g = Game::new();
         g.lvl1();
-        let v: Vec<&Cell> = g.board.cell.iter()
+        let v: Vec<&(Cell,Orientation)> = g.board.cell.iter()
             .flat_map(|x|
-                x.iter().filter(|c| *c == &Cell::Wall))
+                x.iter().filter(|c| *c == &(Cell::Wall, Orientation::Top)))
             .collect();
-        assert_eq!(v.len(), 4);
+        assert_eq!(v.len(), 13);
     }
 }
