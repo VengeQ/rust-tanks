@@ -10,7 +10,7 @@ impl Game {
         Game { board: Default::default() }
     }
 
-    pub fn board(&self) -> &Vec<Vec<Cell>> {
+    pub fn board(&self) -> &Vec<Vec<(Cell, Orientation)>> {
         &self.board.cell
     }
 
@@ -48,6 +48,9 @@ impl Game {
             }
         }).collect()).collect();
 
+        let cells = cells.iter()
+            .map(|x|x.iter().map(|y|(*y,Orientation::Top)).collect()).collect();
+
         let board = Board {
             size: [size as f64; 2],
             cell: cells,
@@ -59,7 +62,7 @@ impl Game {
 #[derive(Default, Debug, PartialOrd, PartialEq)]
 pub struct Board {
     size: [f64; 2],
-    cell: Vec<Vec<Cell>>,
+    cell: Vec<Vec<(Cell,Orientation)>>,
 }
 
 
@@ -72,7 +75,7 @@ pub enum Cell {
 
 #[allow(dead_code)]
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
-enum Orientation {
+pub enum Orientation {
     Top,
     Right,
     Bottom,

@@ -14,6 +14,7 @@ use graphics::character::CharacterCache;
 use crate::model::Cell;
 
 pub use textures::texture_creator;
+use std::collections::HashMap;
 
 ///Rendering settings
 pub struct GameViewSettings {
@@ -26,14 +27,14 @@ pub struct GameViewSettings {
 }
 
 impl GameViewSettings {
-    pub fn new(board_size: f64, texture: (Texture, Texture, Texture)) -> Self {
+    pub fn new(board_size: f64, mut textures: HashMap<String,Texture>) -> Self {
         Self {
             position: [20.0, 20.0],
             size: board_size,
             background_color: [0.5, 0.5, 0.5, 1.0],
-            water_texture: texture.0,
-            wall_texture: texture.1,
-            ground_texture: texture.2,
+            water_texture: textures.remove("water").unwrap(),
+            wall_texture: textures.remove("wall").unwrap(),
+            ground_texture: textures.remove("ground").unwrap()
         }
     }
 }
@@ -71,13 +72,13 @@ impl GameView {
                 let _y2 = settings.position[1] + y1 + settings.size / CELL_COUNT as f64;
 
                 match controller.game.board()[x][y] {
-                    Cell::Clear => {
+                    (Cell::Clear,_) => {
                         image(&self.settings.ground_texture, c.transform.trans(x1, y1), g);
                     }
-                    Cell::Water => {
+                    (Cell::Water,_) => {
                         image(&self.settings.water_texture, c.transform.trans(x1, y1), g);
                     }
-                    Cell::Wall => {
+                    (Cell::Wall,_) => {
                         image(&self.settings.wall_texture, c.transform.trans(x1, y1), g);
                     }
                 };
@@ -85,11 +86,10 @@ impl GameView {
         }
         let cell_edge = Line::new([0.7, 0.7, 0.7, 0.1], 1.0);
         for i in 0..CELL_COUNT {
-              let x = settings.position[0] + i as f64 / CELL_COUNT as f64 * settings.size;
+            let x = settings.position[0] + i as f64 / CELL_COUNT as f64 * settings.size;
             let y = settings.position[1] + i as f64 / CELL_COUNT as f64 * settings.size;
             let x2 = settings.position[0] + settings.size;
             let y2 = settings.position[1] + settings.size;
-
 
             let vline = [x, settings.position[1], x, y2];
             cell_edge.draw(vline, &c.draw_state, c.transform, g);

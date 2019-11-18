@@ -41,7 +41,7 @@ fn main() {
     game.lvl1();
     let textures = crate::view::texture_creator(&texture_settings);
     let mut game_controller = GameController::new(game);
-    let game_view = GameView::new(GameViewSettings::new(CELL_COUNT as f64 * FSIZE, textures)); //Сделать нормально
+    let game_view = GameView::new(GameViewSettings::new(CELL_COUNT as f64 * FSIZE, textures));
 
     //let pos top
     while let Some(e) = events.next(&mut window) {
