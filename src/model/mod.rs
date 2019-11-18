@@ -10,14 +10,18 @@ impl Game {
         Game { board: Default::default() }
     }
 
+    /// Return cells of gameboard.
     pub fn board(&self) -> &Vec<Vec<(Cell, Orientation)>> {
         &self.board.cell
     }
 
+    /// Return size of gameboard.
     pub fn cell_size(&self) -> [f64; 2] {
         self.board.size
     }
 
+    /// Level1
+    ///ToDo Invent normal lvl creator
     pub fn lvl1(&mut self) {
         let mut cells = Vec::new();
         let size: usize = CELL_COUNT;
@@ -30,8 +34,8 @@ impl Game {
         cells[14][14] = Cell::Wall;
         cells[15][15] = Cell::Wall;
 
-        for i in 10..19{
-            cells[i][25] = Cell::Wall;
+        for i in cells.iter_mut().take(19).skip(10){
+            i[25] = Cell::Wall;
         }
 
         let min = 8_usize;

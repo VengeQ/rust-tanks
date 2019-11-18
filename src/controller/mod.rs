@@ -1,5 +1,5 @@
 use crate::Game;
-use super::{FSIZE, CELL_COUNT};
+use super::{CELL_COUNT};
 use piston::input::{GenericEvent, Button, MouseButton, Key};
 use crate::model::{Orientation, Cell};
 
@@ -19,19 +19,11 @@ pub enum GameState {
     GameOver,
 }
 
+#[allow(dead_code)]
 pub struct EndLevel(usize);
-
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub enum Direction{
-    Top,
-    Right,
-    Bottom,
-    Left
-}
 
 impl GameController {
     pub fn new(game: Game) -> Self {
-        let cur_board_size = game.cell_size()[0] * FSIZE;
         Self {
             game,
             game_state: GameState::Prepare,
@@ -40,27 +32,24 @@ impl GameController {
         }
     }
     //return new position
-    fn move_tank(&mut self, pos: [f64; 2], direction: Direction) -> ([usize; 2], Orientation) {
+    fn move_tank(&mut self, direction: Orientation) -> ([usize; 2], Orientation) {
         let (x, y) = (self.position.0[0], self.position.0[1]);
 
         dbg!("current: {} {}", x,y);
 
         let try_position = match direction {
-            Direction::Top => if y>0 {[x, y - 1]} else {[x,y]},
-            Direction::Right => if x< CELL_COUNT-1 {[x+1, y]} else{ [x,y] },
-            Direction::Bottom => if y< CELL_COUNT-1 {[x, y + 1]} else{ [x,y] },
-            Direction::Left => if x>0 {[x-1, y]} else {[x,y]},
+            Orientation::Top => if y > 0 { [x, y - 1] } else { [x, y] },
+            Orientation::Right => if x < CELL_COUNT - 1 { [x + 1, y] } else { [x, y] },
+            Orientation::Bottom => if y < CELL_COUNT - 1 { [x, y + 1] } else { [x, y] },
+            Orientation::Left => if x > 0 { [x - 1, y] } else { [x, y] },
         };
-        dbg!("next: {} {}", try_position[0],try_position[1]);
-        if self.game.board()[try_position[0] as usize][try_position[1] as usize].0 == Cell::Clear {
-            ([try_position[0] as usize,try_position[1] as usize], match direction{
-                Direction::Top => {Orientation::Top},
-                Direction::Right => {Orientation::Right},
-                Direction::Bottom => {Orientation::Bottom},
-                Direction::Left => {Orientation::Left},
-            })
+        let (new_x, new_y) = (try_position[0], try_position[1]);
+        dbg!("next: {} {}", new_x,new_y);
+
+        if self.game.board()[new_x][new_y].0 == Cell::Clear {
+            ([new_x, new_y], direction)
         } else {
-            (self.position.0, self.position.1)
+            (self.position.0, direction)
         }
     }
 
@@ -82,18 +71,17 @@ impl GameController {
             }
         }
 
-
         if let Some(Button::Keyboard(Key::Left)) = event.press_args() {
-            self.position = self.move_tank(pos,Direction::Left);
+            self.position = self.move_tank( Orientation::Left);
         }
         if let Some(Button::Keyboard(Key::Right)) = event.press_args() {
-            self.position = self.move_tank(pos,Direction::Right);
+            self.position = self.move_tank( Orientation::Right);
         }
         if let Some(Button::Keyboard(Key::Down)) = event.press_args() {
-            self.position = self.move_tank(pos,Direction::Bottom);
+            self.position = self.move_tank( Orientation::Bottom);
         }
         if let Some(Button::Keyboard(Key::Up)) = event.press_args() {
-            self.position = self.move_tank(pos,Direction::Top);
+            self.position = self.move_tank( Orientation::Top);
         }
         match self.game_state {
             _ => {}

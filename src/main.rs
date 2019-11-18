@@ -36,20 +36,20 @@ fn main() {
     let mut events = Events::new(EventSettings::new().lazy(true)); //not lazy.
     let mut gl = GlGraphics::new(opengl);
     let texture_settings = TextureSettings::new().filter(Filter::Nearest);
-    let glyphs = &mut GlyphCache::new("assets/amazone.ttf", (), texture_settings).expect("Could not load font");
+    let glyphs = &mut GlyphCache::new("assets/amazone.ttf", (), texture_settings)
+        .expect("Could not load font from 'assets/amazone.ttf'");
     let mut game = Game::new();
     game.lvl1();
     let textures = crate::view::texture_creator(&texture_settings);
     let mut game_controller = GameController::new(game);
     let game_view = GameView::new(GameViewSettings::new(CELL_COUNT as f64 * FSIZE, textures));
 
-    //let pos top
+    //event handler
     while let Some(e) = events.next(&mut window) {
         game_controller.event(game_view.settings.position, game_view.settings.size, &e);
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c, g| {
-                use graphics::clear;
-                clear([1.0; 4], g);
+                graphics::clear([1.0; 4], g);
                 game_view.draw(&game_controller, glyphs, &c, g);
             });
         }

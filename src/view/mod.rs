@@ -52,12 +52,12 @@ impl GameView {
 
     pub fn draw<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, glyphs: &mut C, c: &Context, g: &mut G) {
         match controller.game_state {
-            _ => { self.draw_progress(controller, glyphs, c, g) }
+            _ => { self.draw_game_in_progress(controller, glyphs, c, g) }
         };
     }
 
-    fn draw_progress<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, _glyphs: &mut C, c: &Context, g: &mut G) {
-        use graphics::{Line, Rectangle};
+    fn draw_game_in_progress<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, _glyphs: &mut C, c: &Context, g: &mut G) {
+        use graphics::Rectangle;
         let settings = &self.settings;
         let board_rect = [
             settings.position[0], settings.position[1],
@@ -69,6 +69,9 @@ impl GameView {
         self.draw_lines(controller, c, g, settings);
         self.draw_tank(controller, c, g, settings);
     }
+
+    //Draw separate elements.
+    //lines
     fn draw_lines<G: Graphics<Texture=Texture>>(&self, _controller: &GameController, c: &Context, g: &mut G, settings: &GameViewSettings) {
         use graphics::Line;
         let cell_edge = Line::new([0.7, 0.7, 0.7, 0.1], 1.0);
@@ -85,6 +88,7 @@ impl GameView {
             cell_edge.draw(hline, &c.draw_state, c.transform, g);
         }
     }
+    //current lvl board
     fn draw_lvl<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G, settings: &GameViewSettings) {
         for y in 0..CELL_COUNT {
             for x in 0..CELL_COUNT {
@@ -92,19 +96,14 @@ impl GameView {
                 let y1 = settings.position[1] + FSIZE * y as f64;
 
                 match controller.game.board()[x][y] {
-                    (Cell::Clear, _) => {
-                        image(&self.settings.ground_texture, c.transform.trans(x1, y1), g);
-                    }
-                    (Cell::Water, _) => {
-                        image(&self.settings.water_texture, c.transform.trans(x1, y1), g);
-                    }
-                    (Cell::Wall, _) => {
-                        image(&self.settings.wall_texture, c.transform.trans(x1, y1), g);
-                    }
+                    (Cell::Clear, _) => image(&self.settings.ground_texture, c.transform.trans(x1, y1), g),
+                    (Cell::Water, _) =>  image(&self.settings.water_texture, c.transform.trans(x1, y1), g),
+                    (Cell::Wall, _) => image(&self.settings.wall_texture, c.transform.trans(x1, y1), g),
                 };
             }
         }
     }
+    //player position
     fn draw_tank<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G, settings: &GameViewSettings) {
         let x1 = settings.position[0] + FSIZE * controller.position.0[0] as f64;
         let y1 = settings.position[1] + FSIZE * controller.position.0[1] as f64;
