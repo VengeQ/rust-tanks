@@ -9,21 +9,27 @@ pub fn texture_creator(texture_settings: &TextureSettings) -> HashMap<String, Te
     let water_texture = Texture::from_path(
         water_texture_path,
         texture_settings,
-    ).unwrap();
+    ).expect("can't open water.png");
     let wall_texture_path = assets.join("wall.png");
     let wall_texture = Texture::from_path(
         wall_texture_path,
         texture_settings,
-    ).unwrap();
+    ).expect("can't open wall.png");
     let ground_texture_path = assets.join("ground.png");
     let ground_texture = Texture::from_path(
         ground_texture_path,
         texture_settings,
-    ).unwrap();
+    ).expect("can't open ground.png");
+    let tank_texture_path = assets.join("tank.png");
+    let tank_texture = Texture::from_path(
+        tank_texture_path,
+        texture_settings,
+    ).expect("can't open tank.png");
 
     let mut textures = HashMap::new();
     textures.insert("water".to_owned(), water_texture);
     textures.insert("wall".to_owned(), wall_texture);
     textures.insert("ground".to_owned(), ground_texture);
+    textures.insert("tank".to_owned(),tank_texture);
     textures
 }

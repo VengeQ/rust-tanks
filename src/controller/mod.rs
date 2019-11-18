@@ -28,7 +28,7 @@ impl GameController {
         Self {
             game,
             game_state: GameState::Prepare,
-            position: ([1,1], Orientation::Top),
+            position: ([1,1], Orientation::Bottom),
             cursor_pos: [0_f64; 2],
         }
     }
