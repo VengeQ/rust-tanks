@@ -24,7 +24,7 @@ pub struct GameViewSettings {
     water_texture: Texture,
     wall_texture: Texture,
     ground_texture: Texture,
-    tank_texture:Texture
+    tank_texture: Texture,
 }
 
 impl GameViewSettings {
@@ -108,12 +108,13 @@ impl GameView {
     fn draw_tank<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G, settings: &GameViewSettings) {
         let x1 = settings.position[0] + FSIZE * controller.position.0[0] as f64;
         let y1 = settings.position[1] + FSIZE * controller.position.0[1] as f64;
-        let rotate:f64 = match controller.position.1{
-            Orientation::Top => 0.0,
-            Orientation::Right => 90.0,
-            Orientation::Bottom => 180.0,
-            Orientation::Left => 270.0,
+        match controller.position.1 {
+            Orientation::Top => image(&settings.tank_texture, c.transform.trans(x1,y1).rot_deg(0.0), g),
+            Orientation::Right =>image(&settings.tank_texture, c.transform.trans(x1+20.0,y1).rot_deg(90.0), g),
+            Orientation::Bottom => image(&settings.tank_texture, c.transform.trans(x1+20.0,y1+20.0).rot_deg(180.0), g),
+            Orientation::Left => image(&settings.tank_texture, c.transform.trans(x1,y1+20.0).rot_deg(270.0), g),
         };
-        image(&settings.tank_texture, c.transform.trans(x1, y1).rot_deg(rotate), g);
+       // image(&settings.tank_texture, c.transform.trans(x1, y1), g);
+     //   image(&settings.tank_texture, c.transform.trans(40.0,40.0).rot_deg(90.0), g);
     }
 }
