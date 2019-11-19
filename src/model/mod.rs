@@ -1,5 +1,8 @@
+mod board_objects; //Сюда не буду относить объекты Area
+
 use super::CELL_COUNT;
 use super::types::*;
+
 
 ///ToDo position из GameController все-таки относится к игре и ее состоянию, да оно меняется
 /// при перехвате событий, но правильно его отнести сюда.
@@ -9,7 +12,6 @@ use super::types::*;
 pub struct Game {
     board: Board,
 }
-
 
 impl Game {
     pub fn new() -> Self {
@@ -96,9 +98,6 @@ pub struct Board {
     size: [f64; 2],
     fields: Vec<Vec<(Area, Direction)>>,
 }
-
-
-
 
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
 pub enum Area {
