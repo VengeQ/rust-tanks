@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use opengl_graphics::{Texture, TextureSettings};
 
-use crate::model::{Cell, Direction};
+use crate::model::{Area, Direction};
 
 //use graphics::Text;
 macro_rules! map {
@@ -24,11 +24,11 @@ pub struct Textures {
 }
 
 impl Textures {
-    pub fn texture_from_cell(&self, cell: (Cell, Direction)) -> &Texture {
+    pub fn texture_from_cell(&self, cell: (Area, Direction)) -> &Texture {
         match cell {
-            (Cell::Clear, _) => self.textures.get("ground").expect("Can't find 'ground' in textures"),
-            (Cell::Water, _) => self.textures.get("water").expect("Can't find 'water' in textures"),
-            (Cell::Wall, _) => self.textures.get("wall").expect("Can't find 'wall' in textures"),
+            (Area::Clear, _) => self.textures.get("ground").expect("Can't find 'ground' in textures"),
+            (Area::Water, _) => self.textures.get("water").expect("Can't find 'water' in textures"),
+            (Area::Wall, _) => self.textures.get("wall").expect("Can't find 'wall' in textures"),
         }
     }
 

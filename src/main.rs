@@ -11,6 +11,9 @@ mod controller;
 mod model;
 mod view;
 
+pub mod types;
+
+
 use piston::window::WindowSettings;
 use piston::event_loop::*;
 use piston::input::*;

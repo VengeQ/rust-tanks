@@ -1,13 +1,15 @@
 use crate::Game;
 use super::CELL_COUNT;
 use piston::input::{GenericEvent, Button, MouseButton, Key};
-use crate::model::Direction;
+use crate::model::{Direction, Area};
+use super::types::*;
+
 
 #[derive(Clone, Debug)]
 pub struct GameController {
-    pub game: super::model::Game,
-    pub game_state: GameState,
-    pub position: ([usize; 2], Direction),
+    game: super::model::Game,
+    game_state: GameState,
+    location: Location,
     cursor_pos: [f64; 2],
 }
 
@@ -23,19 +25,35 @@ pub enum GameState {
 #[allow(dead_code)]
 pub struct EndLevel(usize);
 
-///ToDo Separate 'position' to 'position' and 'orientation'
 impl GameController {
+
     pub fn new(game: Game) -> Self {
         Self {
             game,
             game_state: GameState::Prepare,
-            position: ([0, 0], Direction::Bottom),
+            location: ([0, 0], Direction::Bottom),
             cursor_pos: [0_f64; 2],
         }
     }
+
+    pub fn game_state(&self) ->GameState{
+        self.game_state
+    }
+
+    pub fn location(&self) ->([usize; 2], Direction){
+        self.location
+    }
+
+
     //move player tank if possible
     fn move_tank(&mut self, direction: Direction) {
-        self.position = (self.game.move_from_cell_with_direction(self.position.0, direction), direction);
+        let loc:Location =(self.location.0, direction);
+        self.location = (self.game.move_from_cell_with_direction(loc), direction);
+    }
+
+
+    pub fn gameboard_field(&self, xy:[usize;2]) -> Field{
+        self.game.board()[xy[0]][xy[1]]
     }
 
     #[allow(unused_variables)]

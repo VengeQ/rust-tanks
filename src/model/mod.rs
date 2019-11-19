@@ -1,5 +1,5 @@
 use super::CELL_COUNT;
-
+use super::types::*;
 
 ///ToDo position из GameController все-таки относится к игре и ее состоянию, да оно меняется
 /// при перехвате событий, но правильно его отнести сюда.
@@ -10,14 +10,15 @@ pub struct Game {
     board: Board,
 }
 
+
 impl Game {
     pub fn new() -> Self {
         Game { board: Default::default() }
     }
 
     /// Return cells of gameboard.
-    pub fn board(&self) -> &Vec<Vec<(Cell, Direction)>> {
-        &self.board.cell
+    pub fn board(&self) -> &Vec<Vec<Field>> {
+        &self.board.fields
     }
 
     /// Return size of gameboard.
@@ -30,17 +31,17 @@ impl Game {
     pub fn lvl1(&mut self) {
         let mut cells = Vec::new();
         let size: usize = CELL_COUNT;
-        let y = vec![Cell::Clear; size];
+        let y = vec![Area::Clear; size];
         for _ in 0..size {
             cells.push(y.clone());
         }
-        cells[15][14] = Cell::Wall;
-        cells[14][15] = Cell::Wall;
-        cells[14][14] = Cell::Wall;
-        cells[15][15] = Cell::Wall;
+        cells[15][14] = Area::Wall;
+        cells[14][15] = Area::Wall;
+        cells[14][14] = Area::Wall;
+        cells[15][15] = Area::Wall;
 
         for i in cells.iter_mut().take(19).skip(10) {
-            i[25] = Cell::Wall;
+            i[25] = Area::Wall;
         }
 
         let min = 8_usize;
@@ -51,7 +52,7 @@ impl Game {
             .enumerate().map(move |x| {
             if (v.0 == min && (x.0 >= min && x.0 <= max)) || (x.0 == min && (v.0 > min && v.0 < max))
                 || (v.0 == max && (x.0 >= min && x.0 <= max)) || x.0 == max && (v.0 > min && v.0 < max) {
-                Cell::Water
+                Area::Water
             } else {
                 *x.1
             }
@@ -62,13 +63,15 @@ impl Game {
 
         let board = Board {
             size: [size as f64; 2],
-            cell: cells,
+            fields: cells,
         };
         self.board = board;
     }
 
     ///Check move possibility then move if possible
-    pub fn move_from_cell_with_direction(&self, src: [usize; 2], direction: Direction) -> [usize; 2] {
+    pub fn move_from_cell_with_direction(&self, loc:Location) -> [usize; 2] {
+        let src= loc.0;
+        let direction = loc.1;
         let (x, y) = (src[0], src[1]);
         dbg!("current: {} {}", x,y);
         let try_position = match direction {
@@ -79,7 +82,7 @@ impl Game {
         };
         let (new_x, new_y) = (try_position[0], try_position[1]);
         dbg!("next: {} {}", new_x,new_y);
-        if self.board()[new_x][new_y].0 == Cell::Clear {
+        if self.board()[new_x][new_y].0 == Area::Clear {
             [new_x, new_y]
         } else {
             src
@@ -91,12 +94,14 @@ impl Game {
 #[derive(Default, Debug, PartialOrd, PartialEq, Clone)]
 pub struct Board {
     size: [f64; 2],
-    cell: Vec<Vec<(Cell, Direction)>>,
+    fields: Vec<Vec<(Area, Direction)>>,
 }
 
 
+
+
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
-pub enum Cell {
+pub enum Area {
     Clear,
     Water,
     Wall,
@@ -120,7 +125,7 @@ mod tests {
     #[test]
     fn new_game_test() {
         let g = Game::new();
-        assert_eq!(g.board.cell, Vec::<Vec<(Cell, Direction)>>::new());
+        assert_eq!(g.board.fields, Vec::<Vec<(Area, Direction)>>::new());
         assert_eq!(g.board.size, [0.0; 2]);
     }
 
@@ -128,9 +133,9 @@ mod tests {
     fn lvl1_test() {
         let mut g = Game::new();
         g.lvl1();
-        let v: Vec<&(Cell, Direction)> = g.board.cell.iter()
+        let v: Vec<&(Area, Direction)> = g.board.fields.iter()
             .flat_map(|x|
-                x.iter().filter(|c| *c == &(Cell::Wall, Direction::Top)))
+                x.iter().filter(|c| *c == &(Area::Wall, Direction::Top)))
             .collect();
         assert_eq!(v.len(), 13);
     }

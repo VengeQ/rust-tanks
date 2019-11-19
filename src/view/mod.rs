@@ -44,7 +44,7 @@ impl GameView {
     }
 
     pub fn draw<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, glyphs: &mut C, c: &Context, g: &mut G) {
-        match controller.game_state {
+        match controller.game_state() {
             _ => { self.draw_game_in_progress(controller, glyphs, c, g) }
         };
     }
@@ -96,7 +96,7 @@ impl GameView {
             for x in 0..CELL_COUNT {
                 let x1 = settings.position[0] + FSIZE * x as f64;
                 let y1 = settings.position[1] + FSIZE * y as f64;
-                let img = self.settings.textures.texture_from_cell(controller.game.board()[x][y]);
+                let img = self.settings.textures.texture_from_cell(controller.gameboard_field([x,y]));
 
                 image(img, c.transform.trans(x1, y1), g)
 
@@ -107,10 +107,10 @@ impl GameView {
     fn draw_tank<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
         let settings = &self.settings;
         use crate::model::Direction;
-        let x1 = settings.position[0] + FSIZE * controller.position.0[0] as f64;
-        let y1 = settings.position[1] + FSIZE * controller.position.0[1] as f64;
+        let x1 = settings.position[0] + FSIZE * controller.location().0[0] as f64;
+        let y1 = settings.position[1] + FSIZE * controller.location().0[1] as f64;
         let tank_texture = settings.textures.get("tank");
-        match controller.position.1 {
+        match controller.location().1 {
             Direction::Top => image(tank_texture, c.transform.trans(x1, y1).rot_deg(0.0), g),
             Direction::Right => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1).rot_deg(90.0), g),
             Direction::Bottom => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1 + settings.position[1]).rot_deg(180.0), g),
