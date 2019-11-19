@@ -51,7 +51,7 @@ fn main() {
     let mut events = Events::new(EventSettings::new().lazy(true)); //not lazy.
     //event handler
     while let Some(e) = events.next(&mut window) {
-        game_controller.event(game_view.settings.position, game_view.settings.size, &e);
+        game_controller.event(game_view.position(), game_view.size(), &e);
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c, g| {
                 graphics::clear([1.0; 4], g);

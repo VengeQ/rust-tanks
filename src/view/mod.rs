@@ -16,10 +16,10 @@ use crate::view::textures::Textures;
 
 ///Rendering settings
 pub struct GameViewSettings {
-    pub position: [f64; 2],
-    pub size: f64,
-    pub background_color: Color,
-    textures:Textures,
+    position: [f64; 2],
+    size: f64,
+    background_color: Color,
+    textures: Textures,
 
 }
 
@@ -29,18 +29,26 @@ impl GameViewSettings {
             position: [20.0, 20.0],
             size: board_size,
             background_color: [0.5, 0.5, 0.5, 1.0],
-            textures
+            textures,
         }
     }
 }
 
 pub struct GameView {
-    pub settings: GameViewSettings
+    settings: GameViewSettings
 }
 
 impl GameView {
     pub fn new(settings: GameViewSettings) -> Self {
         Self { settings }
+    }
+
+    pub fn size(&self) -> f64 {
+        self.settings.size
+    }
+
+    pub fn position(&self) ->  [f64; 2] {
+        self.settings.position
     }
 
     pub fn draw<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, glyphs: &mut C, c: &Context, g: &mut G) {
@@ -96,10 +104,9 @@ impl GameView {
             for x in 0..CELL_COUNT {
                 let x1 = settings.position[0] + FSIZE * x as f64;
                 let y1 = settings.position[1] + FSIZE * y as f64;
-                let img = self.settings.textures.texture_from_cell(controller.gameboard_field([x,y]));
+                let img = self.settings.textures.texture_from_cell(controller.gameboard_field([x, y]));
 
                 image(img, c.transform.trans(x1, y1), g)
-
             }
         }
     }
@@ -116,6 +123,5 @@ impl GameView {
             Direction::Bottom => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1 + settings.position[1]).rot_deg(180.0), g),
             Direction::Left => image(tank_texture, c.transform.trans(x1, y1 + settings.position[1]).rot_deg(270.0), g),
         };
-
     }
 }
