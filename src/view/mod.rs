@@ -39,6 +39,15 @@ impl GameViewSettings {
             tank_texture: textures.remove("tank").unwrap(),
         }
     }
+
+
+    fn image_from_cell(&self, cell: (Cell, Orientation)) -> &Texture {
+        match cell {
+            (Cell::Clear, _) => &self.ground_texture,
+            (Cell::Water, _) => &self.water_texture,
+            (Cell::Wall, _) => &self.wall_texture,
+        }
+    }
 }
 
 pub struct GameView {
@@ -100,12 +109,9 @@ impl GameView {
             for x in 0..CELL_COUNT {
                 let x1 = settings.position[0] + FSIZE * x as f64;
                 let y1 = settings.position[1] + FSIZE * y as f64;
+                let img = self.settings.image_from_cell(controller.game.board()[x][y]);
+                image(img, c.transform.trans(x1, y1), g)
 
-                match controller.game.board()[x][y] {
-                    (Cell::Clear, _) => image(&self.settings.ground_texture, c.transform.trans(x1, y1), g),
-                    (Cell::Water, _) => image(&self.settings.water_texture, c.transform.trans(x1, y1), g),
-                    (Cell::Wall, _) => image(&self.settings.wall_texture, c.transform.trans(x1, y1), g),
-                };
             }
         }
     }
@@ -119,7 +125,6 @@ impl GameView {
             Orientation::Bottom => image(&settings.tank_texture, c.transform.trans(x1 + settings.position[0], y1 + settings.position[1]).rot_deg(180.0), g),
             Orientation::Left => image(&settings.tank_texture, c.transform.trans(x1, y1 + settings.position[1]).rot_deg(270.0), g),
         };
-        // image(&settings.tank_texture, c.transform.trans(x1, y1), g);
-        //   image(&settings.tank_texture, c.transform.trans(40.0,40.0).rot_deg(90.0), g);
+
     }
 }
