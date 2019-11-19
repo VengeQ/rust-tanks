@@ -1,6 +1,7 @@
 use opengl_graphics::{Texture, TextureSettings};
 use std::collections::HashMap;
 use std::path::PathBuf;
+use crate::model::{Cell, Orientation};
 //use graphics::Text;
 macro_rules! map {
     ($($key:expr => $value:expr),*) =>{
@@ -14,23 +15,44 @@ macro_rules! map {
     };
 }
 
-pub fn texture_creator(texture_settings: &TextureSettings) -> HashMap<String, Texture> {
-    let assets = find_folder::Search::ParentsThenKids(3, 3)
-        .for_folder("assets").unwrap();
-
-    let water_texture = create_texture_from_path(texture_settings, "water.png", &assets);
-    let wall_texture = create_texture_from_path(texture_settings, "wall.png", &assets);
-    let ground_texture = create_texture_from_path(texture_settings, "ground.png", &assets);
-    let tank_texture = create_texture_from_path(texture_settings, "tank.png", &assets);
-
-    map!["water".to_owned() => water_texture,"wall".to_owned() => wall_texture,
-         "ground".to_owned() => ground_texture,"tank".to_owned() => tank_texture]
+pub struct Textures {
+    textures: HashMap<String, Texture>
 }
 
-fn create_texture_from_path(texture_settings: &TextureSettings, path: &str, assets: &PathBuf) -> Texture {
-    let texture_path = assets.join(path);
-    let error_message = format!("can't open {}", path);
-    Texture::from_path(texture_path, texture_settings).expect(&error_message)
+impl Textures {
+    pub fn texture_from_cell(&self, cell: (Cell, Orientation)) -> &Texture {
+        match cell {
+            (Cell::Clear, _) => self.textures.get("ground").expect("Can't find 'ground' in textures"),
+            (Cell::Water, _) => self.textures.get("water").expect("Can't find 'water' in textures"),
+            (Cell::Wall, _) => self.textures.get("wall").expect("Can't find 'wall' in textures"),
+        }
+    }
+
+    pub fn new(texture_settings: &TextureSettings) -> Self {
+        Self { textures: Textures::create_textures(texture_settings) }
+    }
+
+    pub fn get(&self, key:&str) -> &Texture{
+        &self.textures.get(key).unwrap_or_else(|| panic!("Can't find `{}` texture", key)) T
+    }
+
+    fn create_textures(texture_settings: &TextureSettings) -> HashMap<String, Texture> {
+        let assets = find_folder::Search::ParentsThenKids(3, 3)
+            .for_folder("assets").unwrap();
+
+        let water_texture = Textures::create_texture_from_path(texture_settings, "water.png", &assets);
+        let wall_texture = Textures::create_texture_from_path(texture_settings, "wall.png", &assets);
+        let ground_texture = Textures::create_texture_from_path(texture_settings, "ground.png", &assets);
+        let tank_texture = Textures::create_texture_from_path(texture_settings, "tank.png", &assets);
+
+        map!["water".to_owned() => water_texture,"wall".to_owned() => wall_texture,
+         "ground".to_owned() => ground_texture,"tank".to_owned() => tank_texture]
+    }
+    fn create_texture_from_path(texture_settings: &TextureSettings, path: &str, assets: &PathBuf) -> Texture {
+        let texture_path = assets.join(path);
+        let error_message = format!("can't open {}", path);
+        Texture::from_path(texture_path, texture_settings).expect(&error_message)
+    }
 }
 
 
@@ -42,7 +64,6 @@ mod tests {
     use glutin_window::GlutinWindow as Window;
     use opengl_graphics::{OpenGL, Filter, GlGraphics, TextureSettings};
     use piston_window::PistonWindow;
-
 
     const OPENGL: OpenGL = OpenGL::V3_2;
 

@@ -1,4 +1,4 @@
-mod textures;
+pub mod textures;
 
 use graphics::types::Color;
 use crate::{FSIZE, CELL_COUNT};
@@ -10,10 +10,8 @@ use crate::graphics::Transformed;
 use piston_window::image;
 use crate::controller::GameController;
 use graphics::character::CharacterCache;
-use crate::model::{Cell, Orientation};
 
-pub use textures::texture_creator;
-use std::collections::HashMap;
+use crate::view::textures::Textures;
 
 
 ///Rendering settings
@@ -21,33 +19,20 @@ pub struct GameViewSettings {
     pub position: [f64; 2],
     pub size: f64,
     pub background_color: Color,
-    water_texture: Texture,
-    wall_texture: Texture,
-    ground_texture: Texture,
-    tank_texture: Texture,
+    textures:Textures,
+
 }
 
 impl GameViewSettings {
-    pub fn new(board_size: f64, mut textures: HashMap<String, Texture>) -> Self {
+    pub fn new(board_size: f64, textures: Textures) -> Self {
         Self {
             position: [20.0, 20.0],
             size: board_size,
             background_color: [0.5, 0.5, 0.5, 1.0],
-            water_texture: textures.remove("water").unwrap(),
-            wall_texture: textures.remove("wall").unwrap(),
-            ground_texture: textures.remove("ground").unwrap(),
-            tank_texture: textures.remove("tank").unwrap(),
+            textures
         }
     }
 
-
-    fn image_from_cell(&self, cell: (Cell, Orientation)) -> &Texture {
-        match cell {
-            (Cell::Clear, _) => &self.ground_texture,
-            (Cell::Water, _) => &self.water_texture,
-            (Cell::Wall, _) => &self.wall_texture,
-        }
-    }
 }
 
 pub struct GameView {
@@ -109,7 +94,8 @@ impl GameView {
             for x in 0..CELL_COUNT {
                 let x1 = settings.position[0] + FSIZE * x as f64;
                 let y1 = settings.position[1] + FSIZE * y as f64;
-                let img = self.settings.image_from_cell(controller.game.board()[x][y]);
+                let img = self.settings.textures.texture_from_cell(controller.game.board()[x][y]);
+
                 image(img, c.transform.trans(x1, y1), g)
 
             }
@@ -117,13 +103,15 @@ impl GameView {
     }
     //player position
     fn draw_tank<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G, settings: &GameViewSettings) {
+        use crate::model::Orientation;
         let x1 = settings.position[0] + FSIZE * controller.position.0[0] as f64;
         let y1 = settings.position[1] + FSIZE * controller.position.0[1] as f64;
+        let tank_texture = settings.textures.get("tank");
         match controller.position.1 {
-            Orientation::Top => image(&settings.tank_texture, c.transform.trans(x1, y1).rot_deg(0.0), g),
-            Orientation::Right => image(&settings.tank_texture, c.transform.trans(x1 + settings.position[0], y1).rot_deg(90.0), g),
-            Orientation::Bottom => image(&settings.tank_texture, c.transform.trans(x1 + settings.position[0], y1 + settings.position[1]).rot_deg(180.0), g),
-            Orientation::Left => image(&settings.tank_texture, c.transform.trans(x1, y1 + settings.position[1]).rot_deg(270.0), g),
+            Orientation::Top => image(tank_texture, c.transform.trans(x1, y1).rot_deg(0.0), g),
+            Orientation::Right => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1).rot_deg(90.0), g),
+            Orientation::Bottom => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1 + settings.position[1]).rot_deg(180.0), g),
+            Orientation::Left => image(tank_texture, c.transform.trans(x1, y1 + settings.position[1]).rot_deg(270.0), g),
         };
 
     }

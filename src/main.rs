@@ -40,7 +40,7 @@ fn main() {
         .expect("Could not load font from 'assets/amazone.ttf'");
     let mut game = Game::new();
     game.lvl1();
-    let textures = crate::view::texture_creator(&texture_settings);
+    let textures = crate::view::textures::Textures::new(&texture_settings);
     let mut game_controller = GameController::new(game);
     let game_view = GameView::new(GameViewSettings::new(CELL_COUNT as f64 * FSIZE, textures));
 
