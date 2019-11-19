@@ -1,7 +1,10 @@
-use opengl_graphics::{Texture, TextureSettings};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use crate::model::{Cell, Orientation};
+
+use opengl_graphics::{Texture, TextureSettings};
+
+use crate::model::{Cell, Direction};
+
 //use graphics::Text;
 macro_rules! map {
     ($($key:expr => $value:expr),*) =>{
@@ -20,7 +23,7 @@ pub struct Textures {
 }
 
 impl Textures {
-    pub fn texture_from_cell(&self, cell: (Cell, Orientation)) -> &Texture {
+    pub fn texture_from_cell(&self, cell: (Cell, Direction)) -> &Texture {
         match cell {
             (Cell::Clear, _) => self.textures.get("ground").expect("Can't find 'ground' in textures"),
             (Cell::Water, _) => self.textures.get("water").expect("Can't find 'water' in textures"),
@@ -33,7 +36,7 @@ impl Textures {
     }
 
     pub fn get(&self, key:&str) -> &Texture{
-        &self.textures.get(key).unwrap_or_else(|| panic!("Can't find `{}` texture", key)) T
+        &self.textures.get(key).unwrap_or_else(|| panic!("Can't find `{}` texture", key))
     }
 
     fn create_textures(texture_settings: &TextureSettings) -> HashMap<String, Texture> {
@@ -58,12 +61,13 @@ impl Textures {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use graphics::ImageSize;
-    use piston::window::WindowSettings;
     use glutin_window::GlutinWindow as Window;
-    use opengl_graphics::{OpenGL, Filter, GlGraphics, TextureSettings};
+    use graphics::ImageSize;
+    use opengl_graphics::{Filter, GlGraphics, OpenGL, TextureSettings};
+    use piston::window::WindowSettings;
     use piston_window::PistonWindow;
+
+    use super::*;
 
     const OPENGL: OpenGL = OpenGL::V3_2;
 

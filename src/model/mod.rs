@@ -11,7 +11,7 @@ impl Game {
     }
 
     /// Return cells of gameboard.
-    pub fn board(&self) -> &Vec<Vec<(Cell, Orientation)>> {
+    pub fn board(&self) -> &Vec<Vec<(Cell, Direction)>> {
         &self.board.cell
     }
 
@@ -34,7 +34,7 @@ impl Game {
         cells[14][14] = Cell::Wall;
         cells[15][15] = Cell::Wall;
 
-        for i in cells.iter_mut().take(19).skip(10){
+        for i in cells.iter_mut().take(19).skip(10) {
             i[25] = Cell::Wall;
         }
 
@@ -53,7 +53,7 @@ impl Game {
         }).collect()).collect();
 
         let cells = cells.iter()
-            .map(|x|x.iter().map(|y|(*y,Orientation::Top)).collect()).collect();
+            .map(|x| x.iter().map(|y| (*y, Direction::Top)).collect()).collect();
 
         let board = Board {
             size: [size as f64; 2],
@@ -61,12 +61,32 @@ impl Game {
         };
         self.board = board;
     }
+
+    ///Check move possibility
+    pub fn move_from_cell_with_direction(&self, src: [usize; 2], direction: Direction) -> [usize; 2] {
+        let (x, y) = (src[0], src[1]);
+        dbg!("current: {} {}", x,y);
+        let try_position = match direction {
+            Direction::Top => if y > 0 { [x, y - 1] } else { [x, y] },
+            Direction::Right => if x < CELL_COUNT - 1 { [x + 1, y] } else { [x, y] },
+            Direction::Bottom => if y < CELL_COUNT - 1 { [x, y + 1] } else { [x, y] },
+            Direction::Left => if x > 0 { [x - 1, y] } else { [x, y] },
+        };
+        let (new_x, new_y) = (try_position[0], try_position[1]);
+        dbg!("next: {} {}", new_x,new_y);
+        if self.board()[new_x][new_y].0 == Cell::Clear {
+            [new_x, new_y]
+        } else {
+            src
+        }
+    }
 }
+
 
 #[derive(Default, Debug, PartialOrd, PartialEq, Clone)]
 pub struct Board {
     size: [f64; 2],
-    cell: Vec<Vec<(Cell,Orientation)>>,
+    cell: Vec<Vec<(Cell, Direction)>>,
 }
 
 
@@ -79,7 +99,7 @@ pub enum Cell {
 
 #[allow(dead_code)]
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
-pub enum Orientation {
+pub enum Direction {
     Top,
     Right,
     Bottom,
@@ -93,7 +113,7 @@ mod tests {
     #[test]
     fn new_game_test() {
         let g = Game::new();
-        assert_eq!(g.board.cell, Vec::<Vec<(Cell,Orientation)>>::new());
+        assert_eq!(g.board.cell, Vec::<Vec<(Cell, Direction)>>::new());
         assert_eq!(g.board.size, [0.0; 2]);
     }
 
@@ -101,9 +121,9 @@ mod tests {
     fn lvl1_test() {
         let mut g = Game::new();
         g.lvl1();
-        let v: Vec<&(Cell,Orientation)> = g.board.cell.iter()
+        let v: Vec<&(Cell, Direction)> = g.board.cell.iter()
             .flat_map(|x|
-                x.iter().filter(|c| *c == &(Cell::Wall, Orientation::Top)))
+                x.iter().filter(|c| *c == &(Cell::Wall, Direction::Top)))
             .collect();
         assert_eq!(v.len(), 13);
     }

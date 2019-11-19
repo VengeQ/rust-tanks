@@ -103,15 +103,15 @@ impl GameView {
     }
     //player position
     fn draw_tank<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G, settings: &GameViewSettings) {
-        use crate::model::Orientation;
+        use crate::model::Direction;
         let x1 = settings.position[0] + FSIZE * controller.position.0[0] as f64;
         let y1 = settings.position[1] + FSIZE * controller.position.0[1] as f64;
         let tank_texture = settings.textures.get("tank");
         match controller.position.1 {
-            Orientation::Top => image(tank_texture, c.transform.trans(x1, y1).rot_deg(0.0), g),
-            Orientation::Right => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1).rot_deg(90.0), g),
-            Orientation::Bottom => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1 + settings.position[1]).rot_deg(180.0), g),
-            Orientation::Left => image(tank_texture, c.transform.trans(x1, y1 + settings.position[1]).rot_deg(270.0), g),
+            Direction::Top => image(tank_texture, c.transform.trans(x1, y1).rot_deg(0.0), g),
+            Direction::Right => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1).rot_deg(90.0), g),
+            Direction::Bottom => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1 + settings.position[1]).rot_deg(180.0), g),
+            Direction::Left => image(tank_texture, c.transform.trans(x1, y1 + settings.position[1]).rot_deg(270.0), g),
         };
 
     }
