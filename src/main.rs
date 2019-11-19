@@ -33,7 +33,7 @@ fn main() {
     let mut window: PistonWindow<Window> = settings.build()
         .expect("Could not create window");
 
-    let mut events = Events::new(EventSettings::new().lazy(true)); //not lazy.
+
     let mut gl = GlGraphics::new(opengl);
     let texture_settings = TextureSettings::new().filter(Filter::Nearest);
     let glyphs = &mut GlyphCache::new("assets/amazone.ttf", (), texture_settings)
@@ -44,6 +44,8 @@ fn main() {
     let mut game_controller = GameController::new(game);
     let game_view = GameView::new(GameViewSettings::new(CELL_COUNT as f64 * FSIZE, textures));
 
+
+    let mut events = Events::new(EventSettings::new().lazy(true)); //not lazy.
     //event handler
     while let Some(e) = events.next(&mut window) {
         game_controller.event(game_view.settings.position, game_view.settings.size, &e);

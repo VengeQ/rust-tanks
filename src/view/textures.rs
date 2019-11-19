@@ -91,7 +91,7 @@ mod tests {
             .for_folder("assets").unwrap();
         let texture_settings = TextureSettings::new().filter(Filter::Nearest);
         let path = "water.png";
-        let texture = create_texture_from_path(&texture_settings, path, &assets);
+        let texture = Textures::create_texture_from_path(&texture_settings, path, &assets);
         assert_eq!(texture.get_size(), (20, 20)); //(20,20) - base size of texture.
     }
 
@@ -106,7 +106,7 @@ mod tests {
             .for_folder("assets").unwrap();
         let texture_settings = TextureSettings::new().filter(Filter::Nearest);
         let path = "water_wrong.png";
-        let _texture = create_texture_from_path(&texture_settings, path, &assets);
+        let _texture = Textures::create_texture_from_path(&texture_settings, path, &assets);
     }
 
     #[test]
