@@ -1,5 +1,10 @@
 use super::CELL_COUNT;
 
+
+///ToDo position из GameController все-таки относится к игре и ее состоянию, да оно меняется
+/// при перехвате событий, но правильно его отнести сюда.
+/// Кроме того стоит разбить ее на position и orientation, либо использовать
+/// отдельную struct или type. Стоит подумать.
 #[derive(Default, Debug, Clone)]
 pub struct Game {
     board: Board,
@@ -62,7 +67,7 @@ impl Game {
         self.board = board;
     }
 
-    ///Check move possibility
+    ///Check move possibility then move if possible
     pub fn move_from_cell_with_direction(&self, src: [usize; 2], direction: Direction) -> [usize; 2] {
         let (x, y) = (src[0], src[1]);
         dbg!("current: {} {}", x,y);
@@ -106,6 +111,8 @@ pub enum Direction {
     Left,
 }
 
+
+///ToDo Тесты для функций
 #[cfg(test)]
 mod tests {
     use super::*;

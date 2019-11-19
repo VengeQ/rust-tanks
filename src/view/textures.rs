@@ -18,6 +18,7 @@ macro_rules! map {
     };
 }
 
+//Вероятно стоит создать отдельно TextureInitializer
 pub struct Textures {
     textures: HashMap<String, Texture>
 }
@@ -59,6 +60,7 @@ impl Textures {
 }
 
 
+///ToDo покрыть тестами!
 #[cfg(test)]
 mod tests {
     use glutin_window::GlutinWindow as Window;
@@ -90,7 +92,7 @@ mod tests {
         let texture_settings = TextureSettings::new().filter(Filter::Nearest);
         let path = "water.png";
         let texture = create_texture_from_path(&texture_settings, path, &assets);
-        assert_eq!(texture.get_size(), (20, 20));
+        assert_eq!(texture.get_size(), (20, 20)); //(20,20) - base size of texture.
     }
 
     #[test]

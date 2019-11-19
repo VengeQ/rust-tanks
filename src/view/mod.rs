@@ -32,7 +32,6 @@ impl GameViewSettings {
             textures
         }
     }
-
 }
 
 pub struct GameView {
@@ -50,18 +49,20 @@ impl GameView {
         };
     }
 
+    //c:Context, g:Graphics, я не смог их вынести отсюда, нужно видимо передать их как мутабельные ссылки в  GameView  и в gl_draw в main,
+    // но у меня не выходит
     fn draw_game_in_progress<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, _glyphs: &mut C, c: &Context, g: &mut G) {
-        let settings = &self.settings;
-        self.draw_board(c, g, settings);
-        self.draw_lvl(controller, c, g, settings);
-        self.draw_lines(controller, c, g, settings);
-        self.draw_tank(controller, c, g, settings);
+        self.draw_board(c, g);
+        self.draw_lines(c, g);
+        self.draw_lvl(controller, c, g);
+        self.draw_tank(controller, c, g);
     }
 
     //Draw separate elements.
     ///Todo 'draw_lines' and 'draw_board' calculation should be memoized.
     #[inline]
-    fn draw_board<G: Graphics<Texture=Texture>>(&self, c: &Context, g: &mut G, settings: &GameViewSettings) {
+    fn draw_board<G: Graphics<Texture=Texture>>(&self, c: &Context, g: &mut G) {
+        let settings = &self.settings;
         use graphics::Rectangle;
         let board_rect = [
             settings.position[0], settings.position[1],
@@ -69,9 +70,9 @@ impl GameView {
         ];
         Rectangle::new(settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
     }
-
     #[inline]
-    fn draw_lines<G: Graphics<Texture=Texture>>(&self, _controller: &GameController, c: &Context, g: &mut G, settings: &GameViewSettings) {
+    fn draw_lines<G: Graphics<Texture=Texture>>(&self, c: &Context, g: &mut G) {
+        let settings = &self.settings;
         use graphics::Line;
         let cell_edge = Line::new([0.7, 0.7, 0.7, 0.1], 1.0);
         for i in 0..CELL_COUNT {
@@ -89,7 +90,8 @@ impl GameView {
     }
 
     //current lvl board
-    fn draw_lvl<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G, settings: &GameViewSettings) {
+    fn draw_lvl<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
+        let settings = &self.settings;
         for y in 0..CELL_COUNT {
             for x in 0..CELL_COUNT {
                 let x1 = settings.position[0] + FSIZE * x as f64;
@@ -102,7 +104,8 @@ impl GameView {
         }
     }
     //player position
-    fn draw_tank<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G, settings: &GameViewSettings) {
+    fn draw_tank<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
+        let settings = &self.settings;
         use crate::model::Direction;
         let x1 = settings.position[0] + FSIZE * controller.position.0[0] as f64;
         let y1 = settings.position[1] + FSIZE * controller.position.0[1] as f64;

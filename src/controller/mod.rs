@@ -33,7 +33,7 @@ impl GameController {
             cursor_pos: [0_f64; 2],
         }
     }
-    //return new position or previous if new position incorrect
+    //move player tank if possible
     fn move_tank(&mut self, direction: Direction) {
         self.position = (self.game.move_from_cell_with_direction(self.position.0, direction), direction);
     }
@@ -73,3 +73,4 @@ impl GameController {
         }
     }
 }
+
