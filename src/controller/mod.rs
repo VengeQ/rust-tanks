@@ -59,7 +59,6 @@ impl GameController {
     #[allow(unused_variables)]
     pub fn event<E: GenericEvent>(&mut self, pos: [f64; 2], size: f64, event: &E) {
         if let Some(pos) = event.mouse_cursor_args() {
-            //dbg!(pos);
             self.cursor_pos = pos;
         }
 
