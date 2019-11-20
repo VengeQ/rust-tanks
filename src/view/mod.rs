@@ -1,4 +1,3 @@
-
 pub mod textures;
 
 use graphics::types::Color;
@@ -36,6 +35,7 @@ impl GameViewSettings {
     }
 }
 
+
 pub struct GameView {
     settings: GameViewSettings
 }
@@ -56,27 +56,28 @@ impl GameView {
 
     pub fn draw<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&mut self, controller: &mut GameController, glyphs: &mut C, c: &Context, g: &mut G) {
         match controller.game_state() {
-            _ => { self.draw_game_in_progress(controller, glyphs, c, g) }
+            _ => {
+                self.draw_game_in_progress(controller, glyphs, c, g)
+            }
         };
     }
-
     //c:Context, g:Graphics, я не смог их вынести отсюда, нужно видимо передать их как мутабельные ссылки в  GameView  и в gl_draw в main,
     // но у меня не выходит
     fn draw_game_in_progress<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&mut self, controller: &mut GameController, _glyphs: &mut C, c: &Context, g: &mut G) {
         self.draw_board(c, g);
         self.draw_lvl(controller, c, g);
         self.draw_lines(c, g);
-        if controller.animate_counter() <19 {
+        if controller.animate_counter() < 19 {
             self.animate_tank(controller, c, g, controller.animate_counter() as f64);
             controller.inc_animate_counter();
             controller.inc_animate_counter();
         } else {
             self.draw_tank(controller, c, g);
         }
-
-        // self.draw_tank(controller, c, g);
         self.draw_lives(controller, c, g);
     }
+    // self.draw_tank(controller, c, g);
+
 
     //Draw separate elements.
     ///Todo 'draw_lines' and 'draw_board' calculation should be memoized.
@@ -90,6 +91,7 @@ impl GameView {
         ];
         Rectangle::new(settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
     }
+
     #[inline]
     fn draw_lines<G: Graphics<Texture=Texture>>(&self, c: &Context, g: &mut G) {
         let settings = &self.settings;
@@ -122,6 +124,7 @@ impl GameView {
             }
         }
     }
+
     //player position
     fn draw_tank<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
         let settings = &self.settings;
@@ -156,10 +159,10 @@ impl GameView {
         //image(tank_texture,transform,g);
 
         match controller.location().1 {
-            Direction::Top => image(tank_texture, c.transform.trans(x1, y1+ settings.position[1] - step).rot_deg(0.0), g),
-            Direction::Right => image(tank_texture, c.transform.trans(x1 + step , y1).rot_deg(90.0), g),
+            Direction::Top => image(tank_texture, c.transform.trans(x1, y1 + settings.position[1] - step).rot_deg(0.0), g),
+            Direction::Right => image(tank_texture, c.transform.trans(x1 + step, y1).rot_deg(90.0), g),
             Direction::Bottom => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1 + step).rot_deg(180.0), g),
-            Direction::Left => image(tank_texture, c.transform.trans(x1+ settings.position[1] - step, y1 + settings.position[1]).rot_deg(270.0), g),
+            Direction::Left => image(tank_texture, c.transform.trans(x1 + settings.position[1] - step, y1 + settings.position[1]).rot_deg(270.0), g),
         };
     }
 
@@ -204,9 +207,9 @@ mod tests {
         }
 
 
-        eq_float(row10[0], row20[0], dif) && eq_float(row10[1], row20[1], dif)
-            && eq_float(row10[2], row20[2], dif) && eq_float(row11[0], row21[0], dif)
-            && eq_float(row11[1], row21[1], dif) && eq_float(row11[2], row21[2], dif)
+        eq_float(row10[0], row20[0], dif) & &eq_float(row10[1], row20[1], dif)
+            & &eq_float(row10[2], row20[2], dif) & &eq_float(row11[0], row21[0], dif)
+            & &eq_float(row11[1], row21[1], dif) & &eq_float(row11[2], row21[2], dif)
     }
 
 
