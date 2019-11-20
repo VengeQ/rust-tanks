@@ -71,6 +71,7 @@ impl GameView {
             self.animate_tank(controller, c, g, controller.animate_counter() as f64);
             controller.inc_animate_counter();
             controller.inc_animate_counter();
+            controller.inc_animate_counter();
         } else {
             self.draw_tank(controller, c, g);
         }

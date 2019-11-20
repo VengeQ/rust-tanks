@@ -39,7 +39,7 @@ impl GameController {
     }
 
     pub fn inc_animate_counter(&mut self) {
-        self.animate_counter += 1;
+        self.animate_counter += 5;
     }
 
     pub fn reset_animate_counter(&mut self) {

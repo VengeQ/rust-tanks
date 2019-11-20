@@ -75,7 +75,6 @@ impl Game {
         let src= loc.0;
         let direction = loc.1;
         let (x, y) = (src[0], src[1]);
-        dbg!("current: {} {}", x,y);
         let try_position = match direction {
             Direction::Top => if y > 0 { [x, y - 1] } else { [x, y] },
             Direction::Right => if x < CELL_COUNT - 1 { [x + 1, y] } else { [x, y] },
@@ -83,7 +82,6 @@ impl Game {
             Direction::Left => if x > 0 { [x - 1, y] } else { [x, y] },
         };
         let (new_x, new_y) = (try_position[0], try_position[1]);
-        dbg!("next: {} {}", new_x,new_y);
         if self.board()[new_x][new_y].0 == Area::Clear {
             [new_x, new_y]
         } else {
