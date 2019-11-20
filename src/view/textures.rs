@@ -48,9 +48,11 @@ impl Textures {
         let wall_texture = Textures::create_texture_from_path(texture_settings, "wall.png", &assets);
         let ground_texture = Textures::create_texture_from_path(texture_settings, "ground.png", &assets);
         let tank_texture = Textures::create_texture_from_path(texture_settings, "tank.png", &assets);
+        let heart_texture = Textures::create_texture_from_path(texture_settings, "heart.png", &assets);
 
         map!["water".to_owned() => water_texture,"wall".to_owned() => wall_texture,
-         "ground".to_owned() => ground_texture,"tank".to_owned() => tank_texture]
+         "ground".to_owned() => ground_texture,"tank".to_owned() => tank_texture,
+         "heart".to_owned() => heart_texture]
     }
     fn create_texture_from_path(texture_settings: &TextureSettings, path: &str, assets: &PathBuf) -> Texture {
         let texture_path = assets.join(path);

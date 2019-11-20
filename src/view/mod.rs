@@ -66,6 +66,7 @@ impl GameView {
         self.draw_lvl(controller, c, g);
         self.draw_lines(c, g);
         self.draw_tank(controller, c, g);
+        self.draw_lives(controller, c, g);
     }
 
     //Draw separate elements.
@@ -125,12 +126,25 @@ impl GameView {
         let transform = GameView::trans_with_rotate_by_direction([x1, y1], direction, c);
         //image(tank_texture,transform,g);
 
-        match controller.location().1{
+        match controller.location().1 {
             Direction::Top => image(tank_texture, c.transform.trans(x1, y1).rot_deg(0.0), g),
             Direction::Right => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1).rot_deg(90.0), g),
             Direction::Bottom => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1 + settings.position[1]).rot_deg(180.0), g),
             Direction::Left => image(tank_texture, c.transform.trans(x1, y1 + settings.position[1]).rot_deg(270.0), g),
         };
+    }
+
+    fn draw_lives<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
+        let settings = &self.settings;
+        let (shift_x, shift_y) = (settings.size - settings.position[0] , settings.size + settings.position[1]);
+        dbg!(shift_x);
+        dbg!(shift_y);
+        let heart_texture = settings.textures.get("heart");
+        for i in 0..3 {
+            let heart_position_y = shift_y as f64;
+            let heart_position_x = shift_x as f64 - settings.position[1] * i as f64;
+            image(heart_texture, c.transform.trans(heart_position_x, heart_position_y), g);
+        }
     }
 
     fn trans_with_rotate_by_direction(pos: [f64; 2], direction: Direction, c: &Context) -> Matrix2d {
