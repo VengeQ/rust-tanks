@@ -63,8 +63,8 @@ impl GameView {
     // но у меня не выходит
     fn draw_game_in_progress<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, _glyphs: &mut C, c: &Context, g: &mut G) {
         self.draw_board(c, g);
-        self.draw_lines(c, g);
         self.draw_lvl(controller, c, g);
+        self.draw_lines(c, g);
         self.draw_tank(controller, c, g);
     }
 
@@ -84,7 +84,7 @@ impl GameView {
     fn draw_lines<G: Graphics<Texture=Texture>>(&self, c: &Context, g: &mut G) {
         let settings = &self.settings;
         use graphics::Line;
-        let cell_edge = Line::new([0.7, 0.7, 0.7, 0.1], 1.0);
+        let cell_edge = Line::new([0.4, 0.4, 0.4, 0.4], 0.56);
         for i in 0..CELL_COUNT {
             let x = settings.position[0] + i as f64 / CELL_COUNT as f64 * settings.size;
             let y = settings.position[1] + i as f64 / CELL_COUNT as f64 * settings.size;
@@ -92,13 +92,9 @@ impl GameView {
             let y2 = settings.position[1] + settings.size;
 
             let vline = [x, settings.position[1], x, y2];
-
             cell_edge.draw(vline, &c.draw_state, c.transform, g);
 
             let hline = [settings.position[0], y, x2, y];
-            if i ==0{
-                dbg!(hline);
-            }
             cell_edge.draw(hline, &c.draw_state, c.transform, g);
         }
     }
