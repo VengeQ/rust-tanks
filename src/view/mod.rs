@@ -1,5 +1,5 @@
 pub mod textures;
-
+pub mod animator;
 use graphics::types::Color;
 use crate::{FSIZE, CELL_COUNT};
 

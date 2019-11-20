@@ -58,7 +58,6 @@ impl GameController {
         self.location
     }
 
-
     //move player tank if possible
     fn move_tank(&mut self, direction: Direction) {
         let loc: Location = (self.location.0, direction);
@@ -66,11 +65,11 @@ impl GameController {
             x if x < 19 => {}
             _ => {
                 self.reset_animate_counter();
-                self.location = (self.game.move_from_cell_with_direction(loc), direction);
+              //  self.location = (self.game.move_from_cell_with_direction(loc), direction);
             }
         }
+        self.location = (self.game.move_from_cell_with_direction(loc), direction);
     }
-
 
     pub fn gameboard_field(&self, xy: [usize; 2]) -> Field {
         self.game.board()[xy[0]][xy[1]]
