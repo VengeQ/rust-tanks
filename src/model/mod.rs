@@ -2,25 +2,27 @@ mod board_objects; //Сюда не буду относить объекты Area
 
 use super::CELL_COUNT;
 use super::types::*;
+use crate::model::Area::Clear;
 
 
-///ToDo position из GameController все-таки относится к игре и ее состоянию, да оно меняется
-/// при перехвате событий, но правильно его отнести сюда.
-/// Кроме того стоит разбить ее на position и orientation, либо использовать
-/// отдельную struct или type. Стоит подумать.
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct Game {
     board: Board,
+    location: Location,
 }
 
 impl Game {
     pub fn new() -> Self {
-        Game { board: Default::default() }
+        Game { board: Default::default(), location: ([0, 0], Direction::Bottom) }
     }
 
     /// Return cells of gameboard.
     pub fn board(&self) -> &Vec<Vec<Field>> {
         &self.board.fields
+    }
+
+    pub fn location(&self) -> Location {
+        self.location
     }
 
     /// Return size of gameboard.
@@ -59,6 +61,7 @@ impl Game {
                 *x.1
             }
         }).collect()).collect();
+        cells[21][19] =Clear;
 
         let cells = cells.iter()
             .map(|x| x.iter().map(|y| (*y, Direction::Top)).collect()).collect();
@@ -71,21 +74,30 @@ impl Game {
     }
 
     ///Check move possibility then move if possible
-    pub fn move_from_cell_with_direction(&self, loc:Location) -> [usize; 2] {
-        let src= loc.0;
-        let direction = loc.1;
+    pub fn move_in_direction_if_possible(&mut self, direction: Direction) -> bool {
+        let prev_location = self.location;
+        let new_position = self.get_new_position_or_current_if_board(direction);
+        let new_location = (new_position, direction);
+        self.location = self.return_new_location_if_area_is_clear_or_current(new_location);
+        if self.location == prev_location { false } else { true }
+    }
+
+    fn get_new_position_or_current_if_board(&self, direction: Direction) -> [usize; 2] {
+        let src = self.location.0;
         let (x, y) = (src[0], src[1]);
-        let try_position = match direction {
+        match direction {
             Direction::Top => if y > 0 { [x, y - 1] } else { [x, y] },
             Direction::Right => if x < CELL_COUNT - 1 { [x + 1, y] } else { [x, y] },
             Direction::Bottom => if y < CELL_COUNT - 1 { [x, y + 1] } else { [x, y] },
             Direction::Left => if x > 0 { [x - 1, y] } else { [x, y] },
-        };
-        let (new_x, new_y) = (try_position[0], try_position[1]);
-        if self.board()[new_x][new_y].0 == Area::Clear {
-            [new_x, new_y]
+        }
+    }
+    fn return_new_location_if_area_is_clear_or_current(&self, location: Location) -> Location {
+        let (x, y) = (location.0[0], location.0[1]);
+        if self.board()[x][y].0 == Area::Clear {
+            location
         } else {
-            src
+            (self.location.0, location.1)
         }
     }
 }
@@ -118,6 +130,7 @@ pub enum Direction {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::model::Direction::Top;
 
     #[test]
     fn new_game_test() {
@@ -135,5 +148,29 @@ mod tests {
                 x.iter().filter(|c| *c == &(Area::Wall, Direction::Top)))
             .collect();
         assert_eq!(v.len(), 13);
+    }
+
+    #[test]
+    fn return_new_location_if_area_is_clear_or_current() {
+        let mut g = Game::new();
+        g.lvl1();
+        let pos: Location = ([14, 14], Direction::Top);
+        g.location = pos;
+        let try_to_water = g.return_new_location_if_area_is_clear_or_current(pos);
+        assert_eq!(try_to_water, pos);
+        let try_correct_move = g.return_new_location_if_area_is_clear_or_current(([11, 13], Direction::Top));
+        assert_eq!(try_correct_move, ([11, 13], Direction::Top));
+    }
+
+    #[test]
+    fn move_in_direction_if_possible_test() {
+        let mut g = Game::new();
+        g.lvl1();
+        let location = ([29, 29], Direction::Right);
+        g.location = location;
+        assert_eq!(g.move_in_direction_if_possible(Direction::Right), false);
+        assert_eq!(g.location, location);
+        assert_eq!(g.move_in_direction_if_possible(Direction::Left), true);
+        assert_eq!(g.location, ([28, 29], Direction::Left));
     }
 }

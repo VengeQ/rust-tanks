@@ -9,10 +9,7 @@ use super::types::*;
 pub struct GameController {
     game: super::model::Game,
     game_state: GameState,
-    location: Location,
     cursor_pos: [f64; 2],
-    animate_counter: usize,
-
 }
 
 #[allow(dead_code)]
@@ -32,43 +29,23 @@ impl GameController {
         Self {
             game,
             game_state: GameState::Prepare,
-            location: ([0, 0], Direction::Bottom),
+
             cursor_pos: [0_f64; 2],
-            animate_counter: 0,
         }
     }
-
-    pub fn inc_animate_counter(&mut self) {
-        self.animate_counter += 5;
-    }
-
-    pub fn reset_animate_counter(&mut self) {
-        self.animate_counter = 0
-    }
-    pub fn animate_counter(&self) -> usize {
-        self.animate_counter
-    }
-
 
     pub fn game_state(&self) -> GameState {
         self.game_state
     }
 
-    pub fn location(&self) -> ([usize; 2], Direction) {
-        self.location
-    }
 
     //move player tank if possible
     fn move_tank(&mut self, direction: Direction) {
-        let loc: Location = (self.location.0, direction);
-        match self.animate_counter {
-            x if x < 19 => {}
-            _ => {
-                self.reset_animate_counter();
-              //  self.location = (self.game.move_from_cell_with_direction(loc), direction);
-            }
-        }
-        self.location = (self.game.move_from_cell_with_direction(loc), direction);
+        self.game.move_in_direction_if_possible(direction);
+    }
+
+    pub fn player_location(& self) -> Location{
+        self.game.location()
     }
 
     pub fn gameboard_field(&self, xy: [usize; 2]) -> Field {

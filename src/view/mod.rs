@@ -1,5 +1,6 @@
 pub mod textures;
 pub mod animator;
+
 use graphics::types::Color;
 use crate::{FSIZE, CELL_COUNT};
 
@@ -67,18 +68,8 @@ impl GameView {
         self.draw_board(c, g);
         self.draw_lvl(controller, c, g);
         self.draw_lines(c, g);
-        if controller.animate_counter() < 19 {
-            self.animate_tank(controller, c, g, controller.animate_counter() as f64);
-            controller.inc_animate_counter();
-            controller.inc_animate_counter();
-            controller.inc_animate_counter();
-        } else {
-            self.draw_tank(controller, c, g);
-        }
-        self.draw_lives(controller, c, g);
+        self.draw_tank(controller, c, g);
     }
-    // self.draw_tank(controller, c, g);
-
 
     //Draw separate elements.
     ///Todo 'draw_lines' and 'draw_board' calculation should be memoized.
@@ -130,40 +121,20 @@ impl GameView {
     fn draw_tank<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
         let settings = &self.settings;
         use crate::model::Direction;
-        let x1 = settings.position[0] + FSIZE * controller.location().0[0] as f64;
-        let y1 = settings.position[1] + FSIZE * controller.location().0[1] as f64;
+        let x1 = settings.position[0] + FSIZE * controller.player_location().0[0] as f64;
+        let y1 = settings.position[1] + FSIZE * controller.player_location().0[1] as f64;
         let tank_texture = settings.textures.get("tank");
 
 
-        let direction = controller.location().1;
+        let direction = controller.player_location().1;
         let transform = GameView::trans_with_rotate_by_direction([x1, y1], direction, c);
         //image(tank_texture,transform,g);
 
-        match controller.location().1 {
+        match controller.player_location().1 {
             Direction::Top => image(tank_texture, c.transform.trans(x1, y1).rot_deg(0.0), g),
             Direction::Right => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1).rot_deg(90.0), g),
             Direction::Bottom => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1 + settings.position[1]).rot_deg(180.0), g),
             Direction::Left => image(tank_texture, c.transform.trans(x1, y1 + settings.position[1]).rot_deg(270.0), g),
-        };
-    }
-
-    fn animate_tank<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G, step: f64) {
-        let settings = &self.settings;
-        use crate::model::Direction;
-        let x1 = settings.position[0] + FSIZE * controller.location().0[0] as f64;
-        let y1 = settings.position[1] + FSIZE * controller.location().0[1] as f64;
-        let tank_texture = settings.textures.get("tank");
-
-
-        let direction = controller.location().1;
-        let transform = GameView::trans_with_rotate_by_direction([x1, y1], direction, c);
-        //image(tank_texture,transform,g);
-
-        match controller.location().1 {
-            Direction::Top => image(tank_texture, c.transform.trans(x1, y1 + settings.position[1] - step).rot_deg(0.0), g),
-            Direction::Right => image(tank_texture, c.transform.trans(x1 + step, y1).rot_deg(90.0), g),
-            Direction::Bottom => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1 + step).rot_deg(180.0), g),
-            Direction::Left => image(tank_texture, c.transform.trans(x1 + settings.position[1] - step, y1 + settings.position[1]).rot_deg(270.0), g),
         };
     }
 
