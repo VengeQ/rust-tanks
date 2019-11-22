@@ -69,6 +69,7 @@ impl GameView {
         self.draw_lvl(controller, c, g);
         self.draw_lines(c, g);
         self.draw_tank(controller, c, g);
+        self.draw_lives(controller, c, g);
     }
 
     //Draw separate elements.
@@ -143,7 +144,8 @@ impl GameView {
         let settings = &self.settings;
         let (shift_x, shift_y) = (settings.size - settings.position[0], settings.size + settings.position[1]);
         let heart_texture = settings.textures.get("heart");
-        for i in 0..3 {
+        let lives = controller.game.lives();
+        for i in 0..lives {
             let heart_position_y = shift_y as f64;
             let heart_position_x = shift_x as f64 - settings.position[1] * i as f64;
             image(heart_texture, c.transform.trans(heart_position_x, heart_position_y), g);

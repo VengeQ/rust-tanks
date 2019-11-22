@@ -22,6 +22,10 @@ impl Game {
         &self.board.fields
     }
 
+    pub fn lives(&self) -> usize{
+        self.player.lives
+    }
+
     pub fn location(&self) -> Location {
         self.player.location
     }

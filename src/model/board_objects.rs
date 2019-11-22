@@ -4,8 +4,8 @@ use crate::CELL_COUNT;
 #[derive(Debug, Clone)]
 pub struct Player {
     pub location: Location,
-    lives: usize,
-    state: State,
+    pub lives: usize,
+    pub state: State,
 }
 
 impl Player {
@@ -33,7 +33,7 @@ impl Player {
 }
 
 #[derive(Debug, Clone)]
-struct State {}
+pub struct State {}
 
 #[cfg(test)]
 mod tests {

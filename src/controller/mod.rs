@@ -7,7 +7,7 @@ use super::types::*;
 
 #[derive(Clone, Debug)]
 pub struct GameController {
-    game: super::model::Game,
+    pub game: super::model::Game,
     game_state: GameState,
     cursor_pos: [f64; 2],
 }
