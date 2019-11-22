@@ -125,6 +125,10 @@ pub enum Area {
     Wall,
 }
 
+impl Area{
+
+}
+
 #[allow(dead_code)]
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
 pub enum Direction {
