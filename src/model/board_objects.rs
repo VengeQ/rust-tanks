@@ -1,7 +1,22 @@
 use crate::types::*;
 use crate::CELL_COUNT;
 use std::fmt;
-use crate::model::{Direction, Area};
+
+#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
+pub enum Area {
+    Clear,
+    Water,
+    Wall,
+}
+
+#[allow(dead_code)]
+#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
+pub enum Direction {
+    Top,
+    Right,
+    Bottom,
+    Left,
+}
 
 #[derive(Debug, Clone)]
 pub struct Player {
@@ -37,9 +52,14 @@ pub struct State {}
 pub trait GameObject {
     fn direction(&self) -> Direction;
     fn area(&self) -> Area;
-
+    fn clone_object(&self) ->Box<dyn GameObject>{
+        match self.area(){
+            Area::Clear =>Box::new(Nothing::new()),
+            Area::Wall => Box::new(Wall::new(self.direction())),
+            Area::Water => Box::new(Water::new(self.direction())),
+        }
+    }
 }
-
 
 impl fmt::Display for dyn GameObject {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -116,8 +136,6 @@ impl Nothing {
         Self{}
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {

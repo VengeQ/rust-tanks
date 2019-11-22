@@ -13,7 +13,7 @@ use crate::controller::GameController;
 use graphics::character::CharacterCache;
 
 use crate::view::textures::Textures;
-use crate::model::Direction;
+use crate::model::{Direction, Area};
 use graphics::math::Matrix2d;
 
 
@@ -111,8 +111,11 @@ impl GameView {
             for x in 0..CELL_COUNT {
                 let x1 = settings.position[0] + FSIZE * x as f64;
                 let y1 = settings.position[1] + FSIZE * y as f64;
-                let object = controller.gameboard_objects([x, y]);
-                let img = self.settings.textures.texture_from_cell((object.area(),object.direction()));
+                let objects = controller.gameboard_objects([x, y]);
+                let img = match objects {
+                    None => self.settings.textures.texture_from_cell((Area::Clear, Direction::Top)),
+                    Some(object) => self.settings.textures.texture_from_cell((object.area(), object.direction()))
+                };
 
                 image(img, c.transform.trans(x1, y1), g)
             }

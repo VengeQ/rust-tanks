@@ -1,4 +1,4 @@
-pub type Field = (crate::model::Area, crate::model::Direction);
+pub type Field = (crate::model::board_objects::Area, crate::model::board_objects::Direction);
 
 ///Location is x,y coordinates with direction
-pub type Location = ([usize; 2],crate::model::Direction);
+pub type Location = ([usize; 2],crate::model::board_objects::Direction);

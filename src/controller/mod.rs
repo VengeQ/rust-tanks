@@ -53,8 +53,8 @@ impl GameController {
         self.game.board()[xy[0]][xy[1]]
     }
 
-    pub fn gameboard_objects(&self, xy: [usize; 2]) -> &Box<dyn GameObject>{
-        &self.game.objects[xy[0]][xy[1]]
+    pub fn gameboard_objects(&self, xy: [usize; 2]) -> Option<&Box<dyn GameObject>>{
+        self.game.objects.get(&[xy[0],xy[1]])
     }
 
     #[allow(unused_variables)]

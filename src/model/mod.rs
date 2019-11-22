@@ -1,32 +1,26 @@
-pub mod board_objects; //Сюда не буду относить объекты Area
+pub mod board_objects;
+
+//Сюда не буду относить объекты Area
+pub use board_objects::{Area, Direction};
 
 use super::CELL_COUNT;
 use super::types::*;
-use crate::model::Area::{Clear, Water};
 use crate::model::board_objects::{Player, GameObject, Wall, Nothing};
 use std::ops::Deref;
+use std::collections::HashMap;
 
 
 #[derive(Debug)]
 pub struct Game {
     board: Board,
     player: Player,
-    pub objects: Vec<Vec<Box<dyn GameObject>>>,
+    pub objects: HashMap<[usize; 2], Box<dyn GameObject>>,
 }
 
 impl Game {
     pub fn new() -> Self {
-        let mut objects = vec![];
-        let size: usize = CELL_COUNT;
-        for _ in 0..size {
-            let mut y: Vec<Box<dyn GameObject>> = Vec::new();
-            for _ in 0..size{
-                y.push(Game::nothing());
-            }
-            objects.push(y);
-        }
-
-        Game { board: Default::default(), player: Player::new(([0, 0], Direction::Bottom)), objects: objects }
+        let mut objects = HashMap::new();
+        Game { board: Default::default(), player: Player::new(([0, 0], Direction::Bottom)), objects }
     }
 
     /// Return cells of gameboard.
@@ -50,42 +44,40 @@ impl Game {
     /// Level1
     ///ToDo Invent normal lvl creator
     pub fn lvl1(&mut self) {
-
-        let mut objects: Vec<Vec<Box<dyn GameObject>>> = Vec::new();
         let size: usize = CELL_COUNT;
-        for _ in 0..size {
-            let mut y: Vec<Box<dyn GameObject>> = Vec::new();
-            for _ in 0..size{
-                y.push(Game::nothing());
-            }
-            objects.push(y);
+        let mut board: Vec<Vec<Field>> = Vec::new();
+        for i in 0..size {
+            let y: Vec<Field> = vec![(Area::Clear, Direction::Top); 30];
+            board.push(y)
         }
-        objects[15][14] = Game::wall();
-        objects[14][15] = Game::wall();
-        objects[14][14] = Game::wall();
-        objects[15][15] = Game::wall();
 
-        for i in objects.iter_mut().take(19).skip(10) {
-            i[25] = Game::wall();
+        let mut objects: HashMap<[usize; 2], Box<dyn GameObject>> = HashMap::new();
+
+        objects.insert([15, 14], Game::wall());
+        objects.insert([15, 15], Game::wall());
+        objects.insert([14, 15], Game::wall());
+        objects.insert([14, 14], Game::wall());
+
+
+        for i in 10..19 {
+            objects.insert([i, 25], Game::wall());
         }
 
         let min = 8_usize;
         let max = 21_usize;
 
-        /*
-        objects = objects.iter()
-            .enumerate().map(move |v| v.1.iter()
-            .enumerate().map(move |x| {
-            if (v.0 == min && (x.0 >= min && x.0 <= max)) || (x.0 == min && (v.0 > min && v.0 < max))
-                || (v.0 == max && (x.0 >= min && x.0 <= max)) || x.0 == max && (v.0 > min && v.0 < max) {
-                water()
-            } else {
-                x.1.
+        for x in min..=max {
+            for y in min..=max {
+                if (x == min && (y >= min && y <= max)) || (y == min && (x > min && x < max))
+                    || (x == max && (y >= min && y <= max)) || y == max && (x > min && x < max) {
+                    objects.insert([x, y], Game::water());
+                }
             }
-        }).collect()).collect();
-        */
-        objects[21][19] = Game::nothing();
-       self.objects=objects;
+        }
+
+        objects.remove(&[21, 19]).expect("Element 21,19 not found");
+
+        self.objects = objects;
 
         let board = Board {
             size: [size as f64; 2],
@@ -110,19 +102,24 @@ impl Game {
     fn get_new_position_or_current_if_board(&self, direction: Direction) -> [usize; 2] {
         let src = self.player.location.0;
         let (x, y) = (src[0], src[1]);
-        match direction {
+        let result = match direction {
             Direction::Top => if y > 0 { [x, y - 1] } else { [x, y] },
             Direction::Right => if x < CELL_COUNT - 1 { [x + 1, y] } else { [x, y] },
             Direction::Bottom => if y < CELL_COUNT - 1 { [x, y + 1] } else { [x, y] },
             Direction::Left => if x > 0 { [x - 1, y] } else { [x, y] },
-        }
+        };
+        dbg!("result:{:?}",result);
+        result
     }
     fn return_new_location_if_area_is_clear_or_current(&self, location: Location) -> Location {
         let (x, y) = (location.0[0], location.0[1]);
-        if self.objects[x][y].area() == Area::Clear {
-            location
-        } else {
-            (self.player.location.0, location.1)
+        match self.objects.get(&[x, y]) {
+            Some(x) => {
+                (self.player.location.0, location.1)
+            }
+            _ => {
+                location
+            }
         }
     }
 }
@@ -132,24 +129,6 @@ impl Game {
 pub struct Board {
     size: [f64; 2],
     fields: Vec<Vec<(Area, Direction)>>,
-}
-
-#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
-pub enum Area {
-    Clear,
-    Water,
-    Wall,
-}
-
-impl Area {}
-
-#[allow(dead_code)]
-#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
-pub enum Direction {
-    Top,
-    Right,
-    Bottom,
-    Left,
 }
 
 
@@ -169,12 +148,10 @@ mod tests {
     #[test]
     fn lvl1_test() {
         let mut g = Game::new();
-        g.lvl1();
-        let v: Vec<&(Area, Direction)> = g.board.fields.iter()
-            .flat_map(|x|
-                x.iter().filter(|c| *c == &(Area::Wall, Direction::Top)))
-            .collect();
-        assert_eq!(v.len(), 13);
+        g.lvl1();//: Vec<&Box<board_objects::GameObject>>
+        let v = g.objects.values().filter(|c| c.area() == Area::Wall).count();
+
+        assert_eq!(v, 13);
     }
 
     #[test]
