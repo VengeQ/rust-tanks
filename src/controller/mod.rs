@@ -3,9 +3,10 @@ use super::CELL_COUNT;
 use piston::input::{GenericEvent, Button, MouseButton, Key};
 use crate::model::{Direction, Area};
 use super::types::*;
+use crate::model::board_objects::GameObject;
 
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct GameController {
     pub game: super::model::Game,
     game_state: GameState,
@@ -50,6 +51,10 @@ impl GameController {
 
     pub fn gameboard_field(&self, xy: [usize; 2]) -> Field {
         self.game.board()[xy[0]][xy[1]]
+    }
+
+    pub fn gameboard_objects(&self, xy: [usize; 2]) -> &Box<dyn GameObject>{
+        &self.game.objects[xy[0]][xy[1]]
     }
 
     #[allow(unused_variables)]

@@ -22,6 +22,7 @@ use opengl_graphics::{OpenGL, Filter, GlGraphics, GlyphCache, TextureSettings};
 use piston_window::PistonWindow;
 use crate::controller::GameController;
 use crate::view::{GameView, GameViewSettings};
+use std::time::Duration;
 
 pub const FSIZE: f64 = 20.0;
 pub const SIZE: usize = 20;
@@ -69,6 +70,7 @@ fn main() {
                 game_view.draw(&mut game_controller, glyphs, &c, g);
             });
         }
+
     }
 }
 

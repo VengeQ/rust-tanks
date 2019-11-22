@@ -111,7 +111,8 @@ impl GameView {
             for x in 0..CELL_COUNT {
                 let x1 = settings.position[0] + FSIZE * x as f64;
                 let y1 = settings.position[1] + FSIZE * y as f64;
-                let img = self.settings.textures.texture_from_cell(controller.gameboard_field([x, y]));
+                let object = controller.gameboard_objects([x, y]);
+                let img = self.settings.textures.texture_from_cell((object.area(),object.direction()));
 
                 image(img, c.transform.trans(x1, y1), g)
             }

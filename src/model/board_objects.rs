@@ -1,5 +1,7 @@
 use crate::types::*;
 use crate::CELL_COUNT;
+use std::fmt;
+use crate::model::{Direction, Area};
 
 #[derive(Debug, Clone)]
 pub struct Player {
@@ -17,23 +19,105 @@ impl Player {
         }
     }
 
-    fn add_live(&mut self){
-        self.lives+=1;
+    fn add_live(&mut self) {
+        self.lives += 1;
     }
 
     ///ToDo Game is over!
-    fn drop_live(&mut self){
-        if self.lives>1 {
+    fn drop_live(&mut self) {
+        if self.lives > 1 {
             self.lives -= 1
-        } else {
-
-        }
+        } else {}
     }
-
 }
 
 #[derive(Debug, Clone)]
 pub struct State {}
+
+pub trait GameObject {
+    fn direction(&self) -> Direction;
+    fn area(&self) -> Area;
+
+}
+
+
+impl fmt::Display for dyn GameObject {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({:?})", self.area())
+    }
+}
+
+impl fmt::Debug for dyn GameObject {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({:?})", self.area())
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct Water {
+    direction: Direction
+}
+
+impl GameObject for Water {
+    fn direction(&self) -> Direction {
+        self.direction
+    }
+
+    fn area(&self) -> Area {
+        Area::Water
+    }
+}
+
+impl Water {
+    pub fn new(direction: Direction) -> Self {
+        Self { direction }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct Wall {
+    direction: Direction,
+    state: usize,
+}
+
+impl GameObject for Wall {
+    fn direction(&self) -> Direction {
+        self.direction
+    }
+
+    fn area(&self) -> Area {
+        Area::Wall
+    }
+}
+
+impl Wall {
+    pub fn new(direction: Direction) -> Self {
+        let state = 2;
+        Self { direction, state }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct Nothing {
+}
+
+impl GameObject for Nothing {
+    fn direction(&self) -> Direction {
+        Direction::Top
+    }
+
+    fn area(&self) -> Area {
+        Area::Clear
+    }
+}
+
+impl Nothing {
+    pub fn new() -> Self {
+        Self{}
+    }
+}
+
+
 
 #[cfg(test)]
 mod tests {
@@ -57,24 +141,21 @@ mod tests {
     }
 
     #[test]
-    fn add_live_test(){
+    fn add_live_test() {
         let location = ([1, 1], Direction::Top);
         let mut player = Player::new(location);
         player.add_live();
         let start_lives = 3_usize;
 
-        assert_eq!(player.lives, start_lives+1)
+        assert_eq!(player.lives, start_lives + 1)
     }
 
     #[test]
-    fn drop_live_test(){
+    fn drop_live_test() {
         let location = ([1, 1], Direction::Top);
         let mut player = Player::new(location);
         player.drop_live();
         let start_lives = 3_usize;
-        assert_eq!(player.lives, start_lives-1)
+        assert_eq!(player.lives, start_lives - 1)
     }
-
 }
-
-

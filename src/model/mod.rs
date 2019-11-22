@@ -1,20 +1,32 @@
-mod board_objects; //Сюда не буду относить объекты Area
+pub mod board_objects; //Сюда не буду относить объекты Area
 
 use super::CELL_COUNT;
 use super::types::*;
-use crate::model::Area::Clear;
-use crate::model::board_objects::Player;
+use crate::model::Area::{Clear, Water};
+use crate::model::board_objects::{Player, GameObject, Wall, Nothing};
+use std::ops::Deref;
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Game {
     board: Board,
-    player:Player,
+    player: Player,
+    pub objects: Vec<Vec<Box<dyn GameObject>>>,
 }
 
 impl Game {
     pub fn new() -> Self {
-        Game { board: Default::default(), player: Player::new (([0, 0], Direction::Bottom)) }
+        let mut objects = vec![];
+        let size: usize = CELL_COUNT;
+        for _ in 0..size {
+            let mut y: Vec<Box<dyn GameObject>> = Vec::new();
+            for _ in 0..size{
+                y.push(Game::nothing());
+            }
+            objects.push(y);
+        }
+
+        Game { board: Default::default(), player: Player::new(([0, 0], Direction::Bottom)), objects: objects }
     }
 
     /// Return cells of gameboard.
@@ -22,16 +34,12 @@ impl Game {
         &self.board.fields
     }
 
-    pub fn lives(&self) -> usize{
+    pub fn lives(&self) -> usize {
         self.player.lives
     }
 
     pub fn location(&self) -> Location {
         self.player.location
-    }
-
-    fn set_new_player_location(& mut self, location:Location) {
-        self.player.location = location
     }
 
     /// Return size of gameboard.
@@ -42,45 +50,53 @@ impl Game {
     /// Level1
     ///ToDo Invent normal lvl creator
     pub fn lvl1(&mut self) {
-        let mut cells = Vec::new();
-        let size: usize = CELL_COUNT;
-        let y = vec![Area::Clear; size];
-        for _ in 0..size {
-            cells.push(y.clone());
-        }
-        cells[15][14] = Area::Wall;
-        cells[14][15] = Area::Wall;
-        cells[14][14] = Area::Wall;
-        cells[15][15] = Area::Wall;
 
-        for i in cells.iter_mut().take(19).skip(10) {
-            i[25] = Area::Wall;
+        let mut objects: Vec<Vec<Box<dyn GameObject>>> = Vec::new();
+        let size: usize = CELL_COUNT;
+        for _ in 0..size {
+            let mut y: Vec<Box<dyn GameObject>> = Vec::new();
+            for _ in 0..size{
+                y.push(Game::nothing());
+            }
+            objects.push(y);
+        }
+        objects[15][14] = Game::wall();
+        objects[14][15] = Game::wall();
+        objects[14][14] = Game::wall();
+        objects[15][15] = Game::wall();
+
+        for i in objects.iter_mut().take(19).skip(10) {
+            i[25] = Game::wall();
         }
 
         let min = 8_usize;
         let max = 21_usize;
 
-        cells = cells.iter()
+        /*
+        objects = objects.iter()
             .enumerate().map(move |v| v.1.iter()
             .enumerate().map(move |x| {
             if (v.0 == min && (x.0 >= min && x.0 <= max)) || (x.0 == min && (v.0 > min && v.0 < max))
                 || (v.0 == max && (x.0 >= min && x.0 <= max)) || x.0 == max && (v.0 > min && v.0 < max) {
-                Area::Water
+                water()
             } else {
-                *x.1
+                x.1.
             }
         }).collect()).collect();
-        cells[21][19] =Clear;
-
-        let cells = cells.iter()
-            .map(|x| x.iter().map(|y| (*y, Direction::Top)).collect()).collect();
+        */
+        objects[21][19] = Game::nothing();
+       self.objects=objects;
 
         let board = Board {
             size: [size as f64; 2],
-            fields: cells,
+            fields: vec![],
         };
         self.board = board;
     }
+
+    fn wall() -> Box<dyn GameObject> { Box::new(board_objects::Wall::new(Direction::Top)) }
+    fn water() -> Box<dyn GameObject> { Box::new(board_objects::Water::new(Direction::Top)) }
+    fn nothing() -> Box<dyn GameObject> { Box::new(board_objects::Nothing::new()) }
 
     ///Check move possibility then move if possible
     pub fn move_in_direction_if_possible(&mut self, direction: Direction) -> bool {
@@ -103,7 +119,7 @@ impl Game {
     }
     fn return_new_location_if_area_is_clear_or_current(&self, location: Location) -> Location {
         let (x, y) = (location.0[0], location.0[1]);
-        if self.board()[x][y].0 == Area::Clear {
+        if self.objects[x][y].area() == Area::Clear {
             location
         } else {
             (self.player.location.0, location.1)
@@ -125,9 +141,7 @@ pub enum Area {
     Wall,
 }
 
-impl Area{
-
-}
+impl Area {}
 
 #[allow(dead_code)]
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
