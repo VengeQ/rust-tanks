@@ -4,6 +4,7 @@ use piston::input::{GenericEvent, Button, MouseButton, Key};
 use crate::model::{Direction, Area};
 use super::types::*;
 use crate::model::board_objects::GameObject;
+use std::collections::HashMap;
 
 
 #[derive(Debug)]
@@ -54,7 +55,11 @@ impl GameController {
     }
 
     pub fn gameboard_objects(&self, xy: [usize; 2]) -> Option<&Box<dyn GameObject>>{
-        self.game.objects.get(&[xy[0],xy[1]])
+        self.game.objects().get(&[xy[0],xy[1]])
+    }
+
+    pub fn objects(&self) -> &HashMap<[usize; 2], Box<dyn GameObject>>{
+        self.game.objects()
     }
 
     #[allow(unused_variables)]

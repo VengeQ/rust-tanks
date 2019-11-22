@@ -65,17 +65,19 @@ impl GameView {
     //c:Context, g:Graphics, я не смог их вынести отсюда, нужно видимо передать их как мутабельные ссылки в  GameView  и в gl_draw в main,
     // но у меня не выходит
     fn draw_game_in_progress<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&mut self, controller: &mut GameController, _glyphs: &mut C, c: &Context, g: &mut G) {
-        self.draw_board(c, g);
-        self.draw_lvl(controller, c, g);
+        self.draw_board(controller,c, g);
+        //self.draw_lvl(controller, c, g);
+
         self.draw_lines(c, g);
         self.draw_tank(controller, c, g);
+        self.draw_objects(controller,c,g);
         self.draw_lives(controller, c, g);
     }
 
     //Draw separate elements.
     ///Todo 'draw_lines' and 'draw_board' calculation should be memoized.
     #[inline]
-    fn draw_board<G: Graphics<Texture=Texture>>(&self, c: &Context, g: &mut G) {
+    fn draw_board<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
         let settings = &self.settings;
         use graphics::Rectangle;
         let board_rect = [
@@ -83,6 +85,15 @@ impl GameView {
             settings.size, settings.size,
         ];
         Rectangle::new(settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
+        for y in 0..CELL_COUNT {
+            for x in 0..CELL_COUNT {
+                let x1 = settings.position[0] + FSIZE * x as f64;
+                let y1 = settings.position[1] + FSIZE * y as f64;
+                let board = controller.gameboard_field([x,y]);
+                let img =self.settings.textures.texture_from_cell(board);
+                image(img, c.transform.trans(x1, y1), g)
+            }
+        }
     }
 
     #[inline]
@@ -120,6 +131,16 @@ impl GameView {
                 image(img, c.transform.trans(x1, y1), g)
             }
         }
+    }
+
+    fn draw_objects<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
+        let settings = &self.settings;
+        for (k,v) in controller.objects(){
+            let x1 = settings.position[0] + FSIZE * k[0] as f64;
+            let y1 = settings.position[1] + FSIZE * k[1] as f64;
+            let img = self.settings.textures.texture_from_cell((v.area(), v.direction()));
+            image(img, c.transform.trans(x1, y1), g)
+        };
     }
 
     //player position

@@ -14,13 +14,24 @@ use std::collections::HashMap;
 pub struct Game {
     board: Board,
     player: Player,
-    pub objects: HashMap<[usize; 2], Box<dyn GameObject>>,
+    objects: HashMap<[usize; 2], Box<dyn GameObject>>,
 }
 
 impl Game {
     pub fn new() -> Self {
+        let mut cells = Vec::new();
+        for i in 0..CELL_COUNT{
+            let y =vec![(Area::Clear,Direction::Top);CELL_COUNT];
+            cells.push(y);
+        };
+        let board =Board{ size: [CELL_COUNT as f64;2], fields: cells };
+
         let mut objects = HashMap::new();
-        Game { board: Default::default(), player: Player::new(([0, 0], Direction::Bottom)), objects }
+        Game { board, player: Player::new(([0, 0], Direction::Bottom)), objects }
+    }
+
+    pub fn objects(&self) ->&HashMap<[usize; 2], Box<dyn GameObject>>{
+       &self.objects
     }
 
     /// Return cells of gameboard.
@@ -45,14 +56,7 @@ impl Game {
     ///ToDo Invent normal lvl creator
     pub fn lvl1(&mut self) {
         let size: usize = CELL_COUNT;
-        let mut board: Vec<Vec<Field>> = Vec::new();
-        for i in 0..size {
-            let y: Vec<Field> = vec![(Area::Clear, Direction::Top); 30];
-            board.push(y)
-        }
-
         let mut objects: HashMap<[usize; 2], Box<dyn GameObject>> = HashMap::new();
-
         objects.insert([15, 14], Game::wall());
         objects.insert([15, 15], Game::wall());
         objects.insert([14, 15], Game::wall());
@@ -78,12 +82,6 @@ impl Game {
         objects.remove(&[21, 19]).expect("Element 21,19 not found");
 
         self.objects = objects;
-
-        let board = Board {
-            size: [size as f64; 2],
-            fields: vec![],
-        };
-        self.board = board;
     }
 
     fn wall() -> Box<dyn GameObject> { Box::new(board_objects::Wall::new(Direction::Top)) }
