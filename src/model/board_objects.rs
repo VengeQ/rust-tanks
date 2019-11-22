@@ -1,8 +1,9 @@
 use crate::types::*;
 use crate::CELL_COUNT;
 
+#[derive(Debug, Clone)]
 pub struct Player {
-    location: Location,
+    pub location: Location,
     lives: usize,
     state: State,
 }
@@ -31,6 +32,7 @@ impl Player {
 
 }
 
+#[derive(Debug, Clone)]
 struct State {}
 
 #[cfg(test)]

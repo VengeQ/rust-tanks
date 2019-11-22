@@ -3,17 +3,18 @@ mod board_objects; //Сюда не буду относить объекты Area
 use super::CELL_COUNT;
 use super::types::*;
 use crate::model::Area::Clear;
+use crate::model::board_objects::Player;
 
 
 #[derive(Debug, Clone)]
 pub struct Game {
     board: Board,
-    location: Location,
+    player:Player,
 }
 
 impl Game {
     pub fn new() -> Self {
-        Game { board: Default::default(), location: ([0, 0], Direction::Bottom) }
+        Game { board: Default::default(), player: Player::new (([0, 0], Direction::Bottom)) }
     }
 
     /// Return cells of gameboard.
@@ -22,7 +23,11 @@ impl Game {
     }
 
     pub fn location(&self) -> Location {
-        self.location
+        self.player.location
+    }
+
+    fn set_new_player_location(& mut self, location:Location) {
+        self.player.location = location
     }
 
     /// Return size of gameboard.
@@ -75,15 +80,15 @@ impl Game {
 
     ///Check move possibility then move if possible
     pub fn move_in_direction_if_possible(&mut self, direction: Direction) -> bool {
-        let prev_location = self.location;
+        let prev_location = self.location();
         let new_position = self.get_new_position_or_current_if_board(direction);
         let new_location = (new_position, direction);
-        self.location = self.return_new_location_if_area_is_clear_or_current(new_location);
-        if self.location == prev_location { false } else { true }
+        self.player.location = self.return_new_location_if_area_is_clear_or_current(new_location);
+        if self.player.location == prev_location { false } else { true }
     }
 
     fn get_new_position_or_current_if_board(&self, direction: Direction) -> [usize; 2] {
-        let src = self.location.0;
+        let src = self.player.location.0;
         let (x, y) = (src[0], src[1]);
         match direction {
             Direction::Top => if y > 0 { [x, y - 1] } else { [x, y] },
@@ -97,7 +102,7 @@ impl Game {
         if self.board()[x][y].0 == Area::Clear {
             location
         } else {
-            (self.location.0, location.1)
+            (self.player.location.0, location.1)
         }
     }
 }
@@ -155,7 +160,7 @@ mod tests {
         let mut g = Game::new();
         g.lvl1();
         let pos: Location = ([14, 14], Direction::Top);
-        g.location = pos;
+        g.player.location = pos;
         let try_to_water = g.return_new_location_if_area_is_clear_or_current(pos);
         assert_eq!(try_to_water, pos);
         let try_correct_move = g.return_new_location_if_area_is_clear_or_current(([11, 13], Direction::Top));
@@ -167,10 +172,10 @@ mod tests {
         let mut g = Game::new();
         g.lvl1();
         let location = ([29, 29], Direction::Right);
-        g.location = location;
+        g.player.location = location;
         assert_eq!(g.move_in_direction_if_possible(Direction::Right), false);
-        assert_eq!(g.location, location);
+        assert_eq!(g.location(), location);
         assert_eq!(g.move_in_direction_if_possible(Direction::Left), true);
-        assert_eq!(g.location, ([28, 29], Direction::Left));
+        assert_eq!(g.location(), ([28, 29], Direction::Left));
     }
 }
