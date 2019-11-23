@@ -35,6 +35,7 @@ impl Textures {
         match object {
             GameObjectType::Water => self.textures.get("water").expect("Can't find 'water' in textures"),
             GameObjectType::Wall => self.textures.get("wall").expect("Can't find 'wall' in textures"),
+            GameObjectType::Live => self.textures.get("live").expect("Can't find 'live' in textures"),
         }
     }
 

@@ -10,6 +10,7 @@ pub enum Area {
 pub enum GameObjectType{
     Water,
     Wall,
+    Live
 }
 
 #[allow(dead_code)]
@@ -54,6 +55,11 @@ impl Player {
             self.lives -= 1
         } else {}
     }
+
+    pub fn get_live(&mut self){
+        self.add_live();
+
+    }
 }
 
 #[derive(Debug, Clone,Default)]
@@ -66,6 +72,7 @@ pub trait GameObject {
         match self.game_object(){
             GameObjectType::Wall => Box::new(Wall::new(self.direction())),
             GameObjectType::Water => Box::new(Water::new(self.direction())),
+            GameObjectType::Live => Box::new(Live::new()),
         }
     }
 }
@@ -123,6 +130,31 @@ impl Wall {
     pub fn new(direction: Direction) -> Self {
         let durability = 2;
         Self { direction, durability }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct Live{
+    duration_left:isize,
+    direction:Direction
+}
+
+impl GameObject for Live {
+    fn direction(&self) -> Direction {
+        self.direction
+    }
+
+    fn game_object(&self) -> GameObjectType {
+        GameObjectType::Live
+    }
+}
+
+impl Live {
+    pub fn new() -> Self{
+        Self{ duration_left: 1000, direction: Default::default() }
+    }
+    pub fn lost_duration(&mut self){
+        self.duration_left-=1;
     }
 }
 
