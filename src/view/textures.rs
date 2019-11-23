@@ -69,8 +69,6 @@ impl Textures {
     }
 }
 
-
-///ToDo покрыть тестами!
 #[cfg(test)]
 mod tests {
     use glutin_window::GlutinWindow as Window;
@@ -127,5 +125,48 @@ mod tests {
 
         let y = map![1 => "one".to_owned()];
         assert_eq!(y, x);
+    }
+
+    #[test]
+    fn get_test(){
+        let settings = init_gl_helper(OPENGL);
+        let _window: PistonWindow<Window> = settings.build().expect("Could not create window");
+        let _gl = GlGraphics::new(OPENGL);
+        let texture_settings = TextureSettings::new().filter(Filter::Nearest);
+        let textures =Textures::new(&texture_settings);
+        textures.get("water");
+    }
+
+    #[test]
+    #[should_panic(expected = "Can't find `test` texture")]
+    fn get_test_wrong(){
+        let settings = init_gl_helper(OPENGL);
+        let _window: PistonWindow<Window> = settings.build().expect("Could not create window");
+        let _gl = GlGraphics::new(OPENGL);
+        let texture_settings = TextureSettings::new().filter(Filter::Nearest);
+        let textures =Textures::new(&texture_settings);
+        textures.get("test");
+    }
+
+    #[test]
+    fn board_texture_from_cell_smoke_test(){
+        let settings = init_gl_helper(OPENGL);
+        let _window: PistonWindow<Window> = settings.build().expect("Could not create window");
+        let _gl = GlGraphics::new(OPENGL);
+
+        let texture_settings = TextureSettings::new().filter(Filter::Nearest);
+        let textures = Textures::new(&texture_settings);
+        textures.board_texture_from_cell(Area::Clear);
+    }
+
+    #[test]
+    fn object_texture_from_cell_smoke_test(){
+        let settings = init_gl_helper(OPENGL);
+        let _window: PistonWindow<Window> = settings.build().expect("Could not create window");
+        let _gl = GlGraphics::new(OPENGL);
+
+        let texture_settings = TextureSettings::new().filter(Filter::Nearest);
+        let textures = Textures::new(&texture_settings);
+        textures.object_texture_from_cell(GameObjectType::Water);
     }
 }

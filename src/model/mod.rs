@@ -1,4 +1,5 @@
 pub mod board_objects;
+
 pub use board_objects::{Area, Direction, GameObjectType};
 
 use super::CELL_COUNT;
@@ -17,17 +18,17 @@ pub struct Game {
 impl Game {
     pub fn new() -> Self {
         let mut cells = Vec::new();
-        for _ in 0..CELL_COUNT{
-            let y =vec![(Area::Clear,Direction::Top);CELL_COUNT];
+        for _ in 0..CELL_COUNT {
+            let y = vec![(Area::Clear, Direction::Top); CELL_COUNT];
             cells.push(y);
         };
-        let board =Board{ size: [CELL_COUNT as f64;2], fields: cells };
+        let board = Board { size: [CELL_COUNT as f64; 2], fields: cells };
         let objects = HashMap::new();
         Game { board, player: Player::new(([0, 0], Direction::Bottom)), objects }
     }
 
-    pub fn objects(&self) ->&HashMap<[usize; 2], Box<dyn GameObject>>{
-       &self.objects
+    pub fn objects(&self) -> &HashMap<[usize; 2], Box<dyn GameObject>> {
+        &self.objects
     }
 
     /// Return cells of gameboard.
@@ -85,9 +86,8 @@ impl Game {
         let new_position = self.get_new_position_or_current_if_board(direction);
         let new_location = (new_position, direction);
         self.player.location = self.return_new_location_if_area_is_clear_or_current(new_location);
-        self.player.location !=prev_location
+        self.player.location != prev_location
     }
-
     fn get_new_position_or_current_if_board(&self, direction: Direction) -> [usize; 2] {
         let src = self.player.location.0;
         let (x, y) = (src[0], src[1]);
@@ -123,6 +123,16 @@ pub struct Board {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn objects_test() {
+        let g = Game::new();
+        for i in 0..CELL_COUNT {
+            for j in 0..CELL_COUNT {
+                assert_eq!(g.objects().get(&[i, j]).is_none(), true);
+            }
+        }
+    }
 
     #[test]
     fn new_game_test() {
