@@ -3,7 +3,11 @@ use std::fmt;
 
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
 pub enum Area {
-    Clear,
+    Clear
+}
+
+#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
+pub enum GameObjectType{
     Water,
     Wall,
 }
@@ -57,25 +61,24 @@ pub struct State {}
 
 pub trait GameObject {
     fn direction(&self) -> Direction;
-    fn area(&self) -> Area;
+    fn game_object(&self) -> GameObjectType;
     fn clone_object(&self) ->Box<dyn GameObject>{
-        match self.area(){
-            Area::Wall => Box::new(Wall::new(self.direction())),
-            Area::Water => Box::new(Water::new(self.direction())),
-            _ => unreachable!()
+        match self.game_object(){
+            GameObjectType::Wall => Box::new(Wall::new(self.direction())),
+            GameObjectType::Water => Box::new(Water::new(self.direction())),
         }
     }
 }
 
 impl fmt::Display for dyn GameObject {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({:?})", self.area())
+        write!(f, "({:?})", self.game_object())
     }
 }
 
 impl fmt::Debug for dyn GameObject {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({:?})", self.area())
+        write!(f, "({:?})", self.game_object())
     }
 }
 
@@ -89,8 +92,8 @@ impl GameObject for Water {
         self.direction
     }
 
-    fn area(&self) -> Area {
-        Area::Water
+    fn game_object(&self) -> GameObjectType {
+        GameObjectType::Water
     }
 }
 
@@ -111,8 +114,8 @@ impl GameObject for Wall {
         self.direction
     }
 
-    fn area(&self) -> Area {
-        Area::Wall
+    fn game_object(&self) -> GameObjectType {
+        GameObjectType::Wall
     }
 }
 

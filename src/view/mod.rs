@@ -76,7 +76,7 @@ impl GameView {
                 let x1 = settings.position[0] + FSIZE * x as f64;
                 let y1 = settings.position[1] + FSIZE * y as f64;
                 let board = controller.gameboard_field([x, y]);
-                let img = self.settings.textures.texture_from_cell(board);
+                let img = self.settings.textures.board_texture_from_cell(board.0);
                 image(img, c.transform.trans(x1, y1), g)
             }
         }
@@ -104,7 +104,7 @@ impl GameView {
         for (k, v) in controller.objects() {
             let x1 = settings.position[0] + FSIZE * k[0] as f64;
             let y1 = settings.position[1] + FSIZE * k[1] as f64;
-            let img = self.settings.textures.texture_from_cell((v.area(), v.direction()));
+            let img = self.settings.textures.object_texture_from_cell(v.game_object());
             image(img, c.transform.trans(x1, y1), g)
         };
     }

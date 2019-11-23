@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use opengl_graphics::{Texture, TextureSettings};
 
-use crate::model::{Area, Direction};
+use crate::model::{Area, GameObjectType};
 
 //use graphics::Text;
 macro_rules! map {
@@ -25,19 +25,25 @@ pub struct Textures {
 }
 
 impl Textures {
-    pub fn texture_from_cell(&self, cell: (Area, Direction)) -> &Texture {
+    pub fn board_texture_from_cell(&self, cell: Area) -> &Texture {
         match cell {
-            (Area::Clear, _) => self.textures.get("ground").expect("Can't find 'ground' in textures"),
-            (Area::Water, _) => self.textures.get("water").expect("Can't find 'water' in textures"),
-            (Area::Wall, _) => self.textures.get("wall").expect("Can't find 'wall' in textures"),
+            Area::Clear => self.textures.get("ground").expect("Can't find 'ground' in textures"),
         }
     }
+
+    pub fn object_texture_from_cell(&self, object: GameObjectType) -> &Texture {
+        match object {
+            GameObjectType::Water => self.textures.get("water").expect("Can't find 'water' in textures"),
+            GameObjectType::Wall => self.textures.get("wall").expect("Can't find 'wall' in textures"),
+        }
+    }
+
 
     pub fn new(texture_settings: &TextureSettings) -> Self {
         Self { textures: Textures::create_textures(texture_settings) }
     }
 
-    pub fn get(&self, key:&str) -> &Texture{
+    pub fn get(&self, key: &str) -> &Texture {
         &self.textures.get(key).unwrap_or_else(|| panic!("Can't find `{}` texture", key))
     }
 
@@ -51,10 +57,11 @@ impl Textures {
         let tank_texture = Textures::create_texture_from_path(texture_settings, "tank.png", &assets);
         let heart_texture = Textures::create_texture_from_path(texture_settings, "heart.png", &assets);
 
-        map!["water".to_owned() => water_texture,"wall".to_owned() => wall_texture,
-         "ground".to_owned() => ground_texture,"tank".to_owned() => tank_texture,
-         "heart".to_owned() => heart_texture]
+        map!["water".to_owned() => water_texture, "wall".to_owned() => wall_texture,
+            "ground".to_owned() => ground_texture, "tank".to_owned() => tank_texture,
+            "heart".to_owned() => heart_texture]
     }
+
     fn create_texture_from_path(texture_settings: &TextureSettings, path: &str, assets: &PathBuf) -> Texture {
         let texture_path = assets.join(path);
         let error_message = format!("can't open {}", path);
@@ -116,7 +123,7 @@ mod tests {
     fn map_macro_test() {
         let mut x: HashMap<usize, String> = map![];
         assert_eq!(x, HashMap::<usize, String>::new());
-        x.insert(1,"one".to_owned());
+        x.insert(1, "one".to_owned());
 
         let y = map![1 => "one".to_owned()];
         assert_eq!(y, x);

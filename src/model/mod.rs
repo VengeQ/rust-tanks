@@ -1,5 +1,5 @@
 pub mod board_objects;
-pub use board_objects::{Area, Direction};
+pub use board_objects::{Area, Direction, GameObjectType};
 
 use super::CELL_COUNT;
 use super::types::*;
@@ -134,7 +134,7 @@ mod tests {
     fn lvl1_test() {
         let mut g = Game::new();
         g.lvl1();//: Vec<&Box<board_objects::GameObject>>
-        let v = g.objects.values().filter(|c| c.area() == Area::Wall).count();
+        let v = g.objects.values().filter(|c| c.game_object() == GameObjectType::Wall).count();
 
         assert_eq!(v, 13);
     }

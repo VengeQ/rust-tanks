@@ -88,3 +88,47 @@ impl GameController {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::model::{Area, GameObjectType};
+
+    #[test]
+    fn player_location_test(){
+        let mut game = Game::new();
+        game.lvl1();
+        let location=game.location();
+        let game_controller = GameController::new(game);
+
+        assert_eq!(game_controller.player_location(),location)
+    }
+
+    #[test]
+    fn gameboard_field_test(){
+        let mut game = Game::new();
+        game.lvl1();
+        let game_controller = GameController::new(game);
+        for i in 0..30{
+            for j in 0..30{
+                assert_eq!(game_controller.gameboard_field([i,j]),(Area::Clear, Direction::Top))
+            }
+        }
+    }
+
+    #[test]
+    fn objects_test(){
+        let mut game = Game::new();
+        game.lvl1();
+        let game_controller = GameController::new(game);
+        let object = game_controller.objects().get(&[14,14]).unwrap();
+        assert_eq!(object.game_object(),GameObjectType::Wall);
+    }
+
+    #[test]
+    fn game_state_test(){
+        let game_controller = GameController::new(Game::new());
+        assert_eq!(game_controller.game_state, GameState::Prepare);
+
+    }
+}
