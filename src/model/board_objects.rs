@@ -60,9 +60,9 @@ pub trait GameObject {
     fn area(&self) -> Area;
     fn clone_object(&self) ->Box<dyn GameObject>{
         match self.area(){
-            Area::Clear =>Box::new(Nothing::new()),
             Area::Wall => Box::new(Wall::new(self.direction())),
             Area::Water => Box::new(Water::new(self.direction())),
+            _ => unreachable!()
         }
     }
 }
@@ -103,7 +103,7 @@ impl Water {
 #[derive(Debug, Copy, Clone)]
 pub struct Wall {
     direction: Direction,
-    state: usize,
+    durability: usize,
 }
 
 impl GameObject for Wall {
@@ -118,30 +118,11 @@ impl GameObject for Wall {
 
 impl Wall {
     pub fn new(direction: Direction) -> Self {
-        let state = 2;
-        Self { direction, state }
+        let durability = 2;
+        Self { direction, durability }
     }
 }
 
-#[derive(Debug, Copy, Clone)]
-pub struct Nothing {
-}
-
-impl GameObject for Nothing {
-    fn direction(&self) -> Direction {
-        Direction::Top
-    }
-
-    fn area(&self) -> Area {
-        Area::Clear
-    }
-}
-
-impl Nothing {
-    pub fn new() -> Self {
-        Self{}
-    }
-}
 
 #[cfg(test)]
 mod tests {

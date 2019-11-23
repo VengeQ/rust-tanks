@@ -91,13 +91,12 @@ impl Game {
     fn get_new_position_or_current_if_board(&self, direction: Direction) -> [usize; 2] {
         let src = self.player.location.0;
         let (x, y) = (src[0], src[1]);
-        let result = match direction {
+        match direction {
             Direction::Top => if y > 0 { [x, y - 1] } else { [x, y] },
             Direction::Right => if x < CELL_COUNT - 1 { [x + 1, y] } else { [x, y] },
             Direction::Bottom => if y < CELL_COUNT - 1 { [x, y + 1] } else { [x, y] },
             Direction::Left => if x > 0 { [x - 1, y] } else { [x, y] },
-        };
-        result
+        }
     }
     fn return_new_location_if_area_is_clear_or_current(&self, location: Location) -> Location {
         let (x, y) = (location.0[0], location.0[1]);
