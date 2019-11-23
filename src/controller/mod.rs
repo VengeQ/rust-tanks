@@ -3,8 +3,9 @@ use super::CELL_COUNT;
 use piston::input::{GenericEvent, Button, MouseButton, Key};
 use crate::model::{Direction};
 use super::types::*;
-use crate::model::board_objects::GameObject;
+use crate::model::board_objects::{GameObject, Live};
 use std::collections::HashMap;
+use rand::Rng;
 
 
 #[derive(Debug)]
@@ -12,6 +13,7 @@ pub struct GameController {
     pub game: super::model::Game,
     game_state: GameState,
     cursor_pos: [f64; 2],
+    counter:usize
 }
 
 #[allow(dead_code)]
@@ -32,6 +34,7 @@ impl GameController {
             game,
             game_state: GameState::Prepare,
             cursor_pos: [0_f64; 2],
+            counter: 0
         }
     }
 
@@ -42,6 +45,14 @@ impl GameController {
     //move player tank if possible
     fn move_tank(&mut self, direction: Direction) {
         self.game.move_in_direction_if_possible(direction);
+    }
+
+    fn generate_live(&mut self) ->bool{
+        let mut rng = rand::thread_rng();
+        let (x,y) = (rng.gen_range(0,30),rng.gen_range(0,30));
+        dbg!(x,y);
+        self.game.put_object(Box::new(Live::new()),[x,y]);
+        true
     }
 
     //Данные объекты необходимы вьюшке для отрисовки
@@ -55,8 +66,13 @@ impl GameController {
         self.game.objects()
     }
 
+
     #[allow(unused_variables)]
     pub fn event<E: GenericEvent>(&mut self, pos: [f64; 2], size: f64, event: &E) {
+        self.counter+=1;
+        if self.counter%2000==0{
+            self.generate_live();
+        }
         if let Some(pos) = event.mouse_cursor_args() {
             self.cursor_pos = pos;
         }

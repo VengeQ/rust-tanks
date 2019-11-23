@@ -1,5 +1,6 @@
 use crate::types::*;
 use std::fmt;
+use crate::model::board_objects::Direction::Top;
 
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
 pub enum Area {
@@ -60,6 +61,13 @@ impl Player {
         self.add_live();
 
     }
+
+    pub fn pick(&mut self, pick: &Box<dyn GameObject>){
+        match pick.game_object(){
+            GameObjectType::Live=> self.add_live(),
+            _ => {}
+        }
+    }
 }
 
 #[derive(Debug, Clone,Default)]
@@ -74,6 +82,9 @@ pub trait GameObject {
             GameObjectType::Water => Box::new(Water::new(self.direction())),
             GameObjectType::Live => Box::new(Live::new()),
         }
+    }
+    fn can_pick(&self) ->bool{
+        false
     }
 }
 
@@ -147,6 +158,11 @@ impl GameObject for Live {
     fn game_object(&self) -> GameObjectType {
         GameObjectType::Live
     }
+
+    fn can_pick(&self) ->bool{
+        true
+    }
+
 }
 
 impl Live {
@@ -157,6 +173,18 @@ impl Live {
         self.duration_left-=1;
     }
 }
+
+trait CanPick{
+    fn can_pick_type(&self) -> GameObjectType;
+}
+
+
+impl <T> CanPick for T where T:GameObject{
+    fn can_pick_type(&self) -> GameObjectType {
+        self.game_object()
+    }
+}
+
 
 
 #[cfg(test)]

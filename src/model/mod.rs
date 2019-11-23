@@ -6,6 +6,8 @@ use super::CELL_COUNT;
 use super::types::*;
 use crate::model::board_objects::{Player, GameObject};
 use std::collections::HashMap;
+use std::ops::Deref;
+use crate::model::board_objects::GameObjectType::Water;
 
 
 #[derive(Debug, Default)]
@@ -80,6 +82,15 @@ impl Game {
     fn wall() -> Box<dyn GameObject> { Box::new(board_objects::Wall::new(Direction::Top)) }
     fn water() -> Box<dyn GameObject> { Box::new(board_objects::Water::new(Direction::Top)) }
 
+    pub fn put_object(&mut self, object: Box<dyn GameObject>, coordinates: [usize; 2]) {
+        if self.objects.get(&coordinates).is_none() && self.player.location.0 != coordinates {
+            self.objects.insert(coordinates, object);
+        }
+        self.objects.iter().filter(|(k, v)| v.game_object() != Water)
+            .for_each(|(k, v)| println!("{:?} {:?}", k, v));
+    }
+
+
     ///Check move possibility then move if possible
     pub fn move_in_direction_if_possible(&mut self, direction: Direction) -> bool {
         let prev_location = self.location();
@@ -98,15 +109,16 @@ impl Game {
             Direction::Left => if x > 0 { [x - 1, y] } else { [x, y] },
         }
     }
-    fn return_new_location_if_area_is_clear_or_current(&self, location: Location) -> Location {
+    fn return_new_location_if_area_is_clear_or_current(&mut self, location: Location) -> Location {
         let (x, y) = (location.0[0], location.0[1]);
         match self.objects.get(&[x, y]) {
-            Some(_) => {
-                (self.player.location.0, location.1)
-            }
-            _ => {
+            Some(g) if !g.can_pick() => (self.player.location.0, location.1),
+            Some(g) => {
+                self.player.pick(g);
+                &self.objects.remove(&[x, y]);
                 location
             }
+            None => location
         }
     }
 }
