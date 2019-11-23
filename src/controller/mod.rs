@@ -1,7 +1,7 @@
 use crate::Game;
 use super::CELL_COUNT;
 use piston::input::{GenericEvent, Button, MouseButton, Key};
-use crate::model::{Direction, Area};
+use crate::model::{Direction};
 use super::types::*;
 use crate::model::board_objects::GameObject;
 use std::collections::HashMap;
@@ -31,7 +31,6 @@ impl GameController {
         Self {
             game,
             game_state: GameState::Prepare,
-
             cursor_pos: [0_f64; 2],
         }
     }
@@ -40,24 +39,18 @@ impl GameController {
         self.game_state
     }
 
-
     //move player tank if possible
     fn move_tank(&mut self, direction: Direction) {
         self.game.move_in_direction_if_possible(direction);
     }
 
+    //Данные объекты необходимы вьюшке для отрисовки
     pub fn player_location(& self) -> Location{
         self.game.location()
     }
-
     pub fn gameboard_field(&self, xy: [usize; 2]) -> Field {
         self.game.board()[xy[0]][xy[1]]
     }
-
-    pub fn gameboard_objects(&self, xy: [usize; 2]) -> Option<&Box<dyn GameObject>>{
-        self.game.objects().get(&[xy[0],xy[1]])
-    }
-
     pub fn objects(&self) -> &HashMap<[usize; 2], Box<dyn GameObject>>{
         self.game.objects()
     }
@@ -67,7 +60,6 @@ impl GameController {
         if let Some(pos) = event.mouse_cursor_args() {
             self.cursor_pos = pos;
         }
-
         if let Some(Button::Mouse(MouseButton::Left)) = event.press_args() {
             let x = self.cursor_pos[0] - pos[0];
             let y = self.cursor_pos[1] - pos[1];

@@ -1,16 +1,13 @@
 pub mod board_objects;
-
-//Сюда не буду относить объекты Area
 pub use board_objects::{Area, Direction};
 
 use super::CELL_COUNT;
 use super::types::*;
-use crate::model::board_objects::{Player, GameObject, Wall, Nothing};
-use std::ops::Deref;
+use crate::model::board_objects::{Player, GameObject};
 use std::collections::HashMap;
 
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Game {
     board: Board,
     player: Player,
@@ -20,13 +17,12 @@ pub struct Game {
 impl Game {
     pub fn new() -> Self {
         let mut cells = Vec::new();
-        for i in 0..CELL_COUNT{
+        for _ in 0..CELL_COUNT{
             let y =vec![(Area::Clear,Direction::Top);CELL_COUNT];
             cells.push(y);
         };
         let board =Board{ size: [CELL_COUNT as f64;2], fields: cells };
-
-        let mut objects = HashMap::new();
+        let objects = HashMap::new();
         Game { board, player: Player::new(([0, 0], Direction::Bottom)), objects }
     }
 
@@ -55,14 +51,11 @@ impl Game {
     /// Level1
     ///ToDo Invent normal lvl creator
     pub fn lvl1(&mut self) {
-        let size: usize = CELL_COUNT;
         let mut objects: HashMap<[usize; 2], Box<dyn GameObject>> = HashMap::new();
         objects.insert([15, 14], Game::wall());
         objects.insert([15, 15], Game::wall());
         objects.insert([14, 15], Game::wall());
         objects.insert([14, 14], Game::wall());
-
-
         for i in 10..19 {
             objects.insert([i, 25], Game::wall());
         }
@@ -80,13 +73,11 @@ impl Game {
         }
 
         objects.remove(&[21, 19]).expect("Element 21,19 not found");
-
         self.objects = objects;
     }
 
     fn wall() -> Box<dyn GameObject> { Box::new(board_objects::Wall::new(Direction::Top)) }
     fn water() -> Box<dyn GameObject> { Box::new(board_objects::Water::new(Direction::Top)) }
-    fn nothing() -> Box<dyn GameObject> { Box::new(board_objects::Nothing::new()) }
 
     ///Check move possibility then move if possible
     pub fn move_in_direction_if_possible(&mut self, direction: Direction) -> bool {
@@ -94,7 +85,7 @@ impl Game {
         let new_position = self.get_new_position_or_current_if_board(direction);
         let new_location = (new_position, direction);
         self.player.location = self.return_new_location_if_area_is_clear_or_current(new_location);
-        if self.player.location == prev_location { false } else { true }
+        self.player.location !=prev_location
     }
 
     fn get_new_position_or_current_if_board(&self, direction: Direction) -> [usize; 2] {
@@ -106,13 +97,12 @@ impl Game {
             Direction::Bottom => if y < CELL_COUNT - 1 { [x, y + 1] } else { [x, y] },
             Direction::Left => if x > 0 { [x - 1, y] } else { [x, y] },
         };
-        dbg!("result:{:?}",result);
         result
     }
     fn return_new_location_if_area_is_clear_or_current(&self, location: Location) -> Location {
         let (x, y) = (location.0[0], location.0[1]);
         match self.objects.get(&[x, y]) {
-            Some(x) => {
+            Some(_) => {
                 (self.player.location.0, location.1)
             }
             _ => {
@@ -134,13 +124,11 @@ pub struct Board {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::Direction::Top;
 
     #[test]
     fn new_game_test() {
         let g = Game::new();
-        assert_eq!(g.board.fields, Vec::<Vec<(Area, Direction)>>::new());
-        assert_eq!(g.board.size, [0.0; 2]);
+        assert_eq!(g.board.size, [30.0; 2]);
     }
 
     #[test]

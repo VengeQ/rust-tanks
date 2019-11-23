@@ -10,9 +10,7 @@ pub use model::Game;
 mod controller;
 mod model;
 mod view;
-
 pub mod types;
-
 
 use piston::window::WindowSettings;
 use piston::event_loop::*;
@@ -22,7 +20,6 @@ use opengl_graphics::{OpenGL, Filter, GlGraphics, GlyphCache, TextureSettings};
 use piston_window::PistonWindow;
 use crate::controller::GameController;
 use crate::view::{GameView, GameViewSettings};
-use std::time::Duration;
 
 pub const FSIZE: f64 = 20.0;
 pub const SIZE: usize = 20;
@@ -46,28 +43,15 @@ fn main() {
     game.lvl1();
     let textures = crate::view::textures::Textures::new(&texture_settings);
     let mut game_controller = GameController::new(game);
-    let game_view = GameView::new(GameViewSettings::new(CELL_COUNT as f64 * FSIZE, textures));
-
-
-    let glyphs = &mut GlyphCache::new("assets/amazone.ttf", (), texture_settings)
-        .expect("Could not load font from 'assets/amazone.ttf'");
-    let mut game = Game::new();
-    game.lvl1();
-    let textures = crate::view::textures::Textures::new(&texture_settings);
-    let mut game_controller = GameController::new(game);
-    let mut game_view = GameView::new(GameViewSettings::new(CELL_COUNT as f64 * FSIZE, textures));
+    let  game_view = GameView::new(GameViewSettings::new(CELL_COUNT as f64 * FSIZE, textures));
     let mut events = Events::new(EventSettings::new()); //not lazy.
     //event handler
     while let Some(e) = events.next(&mut window) {
         game_controller.event(game_view.position(), game_view.size(), &e);
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c, g| {
-
-
-                use graphics::clear;
-
                 graphics::clear([1.0; 4], g);
-                game_view.draw(&mut game_controller, glyphs, &c, g);
+                game_view.draw(&game_controller, glyphs, &c, g);
             });
         }
 

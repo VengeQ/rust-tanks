@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-
+#![allow(unused_imports)]
 use crate::view::textures::Textures;
 use opengl_graphics::Texture;
 

@@ -1,7 +1,6 @@
 pub mod textures;
 pub mod animator;
 
-use graphics::types::Color;
 use crate::{FSIZE, CELL_COUNT};
 
 use opengl_graphics::Texture;
@@ -13,7 +12,7 @@ use crate::controller::GameController;
 use graphics::character::CharacterCache;
 
 use crate::view::textures::Textures;
-use crate::model::{Direction, Area};
+use crate::model::Direction;
 use graphics::math::Matrix2d;
 
 
@@ -21,7 +20,6 @@ use graphics::math::Matrix2d;
 pub struct GameViewSettings {
     position: [f64; 2],
     size: f64,
-    background_color: Color,
     textures: Textures,
 }
 
@@ -30,7 +28,6 @@ impl GameViewSettings {
         Self {
             position: [20.0, 20.0],
             size: board_size,
-            background_color: [0.5, 0.5, 0.5, 1.0],
             textures,
         }
     }
@@ -54,8 +51,7 @@ impl GameView {
         self.settings.position
     }
 
-
-    pub fn draw<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&mut self, controller: &mut GameController, glyphs: &mut C, c: &Context, g: &mut G) {
+    pub fn draw<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, glyphs: &mut C, c: &Context, g: &mut G) {
         match controller.game_state() {
             _ => {
                 self.draw_game_in_progress(controller, glyphs, c, g)
@@ -64,38 +60,27 @@ impl GameView {
     }
     //c:Context, g:Graphics, я не смог их вынести отсюда, нужно видимо передать их как мутабельные ссылки в  GameView  и в gl_draw в main,
     // но у меня не выходит
-    fn draw_game_in_progress<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&mut self, controller: &mut GameController, _glyphs: &mut C, c: &Context, g: &mut G) {
-        self.draw_board(controller,c, g);
-        //self.draw_lvl(controller, c, g);
-
+    fn draw_game_in_progress<G: Graphics<Texture=Texture>, C: CharacterCache<Texture=G::Texture>>(&self, controller: &GameController, _glyphs: &mut C, c: &Context, g: &mut G) {
+        self.draw_board(controller, c, g);
         self.draw_lines(c, g);
         self.draw_tank(controller, c, g);
-        self.draw_objects(controller,c,g);
+        self.draw_objects(controller, c, g);
         self.draw_lives(controller, c, g);
     }
 
     //Draw separate elements.
-    ///Todo 'draw_lines' and 'draw_board' calculation should be memoized.
-    #[inline]
     fn draw_board<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
         let settings = &self.settings;
-        use graphics::Rectangle;
-        let board_rect = [
-            settings.position[0], settings.position[1],
-            settings.size, settings.size,
-        ];
-        Rectangle::new(settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
         for y in 0..CELL_COUNT {
             for x in 0..CELL_COUNT {
                 let x1 = settings.position[0] + FSIZE * x as f64;
                 let y1 = settings.position[1] + FSIZE * y as f64;
-                let board = controller.gameboard_field([x,y]);
-                let img =self.settings.textures.texture_from_cell(board);
+                let board = controller.gameboard_field([x, y]);
+                let img = self.settings.textures.texture_from_cell(board);
                 image(img, c.transform.trans(x1, y1), g)
             }
         }
     }
-
     #[inline]
     fn draw_lines<G: Graphics<Texture=Texture>>(&self, c: &Context, g: &mut G) {
         let settings = &self.settings;
@@ -114,57 +99,24 @@ impl GameView {
             cell_edge.draw(hline, &c.draw_state, c.transform, g);
         }
     }
-
-    //current lvl board
-    fn draw_lvl<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
-        let settings = &self.settings;
-        for y in 0..CELL_COUNT {
-            for x in 0..CELL_COUNT {
-                let x1 = settings.position[0] + FSIZE * x as f64;
-                let y1 = settings.position[1] + FSIZE * y as f64;
-                let objects = controller.gameboard_objects([x, y]);
-                let img = match objects {
-                    None => self.settings.textures.texture_from_cell((Area::Clear, Direction::Top)),
-                    Some(object) => self.settings.textures.texture_from_cell((object.area(), object.direction()))
-                };
-
-                image(img, c.transform.trans(x1, y1), g)
-            }
-        }
-    }
-
     fn draw_objects<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
         let settings = &self.settings;
-        for (k,v) in controller.objects(){
+        for (k, v) in controller.objects() {
             let x1 = settings.position[0] + FSIZE * k[0] as f64;
             let y1 = settings.position[1] + FSIZE * k[1] as f64;
             let img = self.settings.textures.texture_from_cell((v.area(), v.direction()));
             image(img, c.transform.trans(x1, y1), g)
         };
     }
-
-    //player position
     fn draw_tank<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
         let settings = &self.settings;
-        use crate::model::Direction;
         let x1 = settings.position[0] + FSIZE * controller.player_location().0[0] as f64;
         let y1 = settings.position[1] + FSIZE * controller.player_location().0[1] as f64;
         let tank_texture = settings.textures.get("tank");
-
-
         let direction = controller.player_location().1;
-        let transform = GameView::trans_with_rotate_by_direction([x1, y1], direction, c);
-        //image(tank_texture,transform,g);
-
-        match controller.player_location().1 {
-            Direction::Top => image(tank_texture, c.transform.trans(x1, y1).rot_deg(0.0), g),
-            Direction::Right => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1).rot_deg(90.0), g),
-            Direction::Bottom => image(tank_texture, c.transform.trans(x1 + settings.position[0], y1 + settings.position[1]).rot_deg(180.0), g),
-            Direction::Left => image(tank_texture, c.transform.trans(x1, y1 + settings.position[1]).rot_deg(270.0), g),
-        };
+        let transformed = GameView::trans_with_rotate_by_direction([x1, y1], direction, c);
+        image(tank_texture, transformed, g);
     }
-
-
     fn draw_lives<G: Graphics<Texture=Texture>>(&self, controller: &GameController, c: &Context, g: &mut G) {
         let settings = &self.settings;
         let (shift_x, shift_y) = (settings.size - settings.position[0], settings.size + settings.position[1]);
@@ -231,5 +183,13 @@ mod tests {
         let transformed_bottom = GameView::trans_with_rotate_by_direction(position, Direction::Bottom, &c);
         let expected_bottom = [[cos180, -sin180, position[0] + FSIZE], [sin180, cos180, position[1] + FSIZE]];
         assert!(eq_float_with_accuracy(transformed_bottom, expected_bottom, 5));
+
+        let transformed_left = GameView::trans_with_rotate_by_direction(position, Direction::Left, &c);
+        let expected_left = [[cos270, -sin270, position[0] + FSIZE], [sin270, cos270, position[1] + FSIZE]];
+        assert!(eq_float_with_accuracy(transformed_left, expected_left, 5));
+
+        let transformed_right = GameView::trans_with_rotate_by_direction(position, Direction::Right, &c);
+        let expected_right = [[cos90, -sin90, position[0] + FSIZE], [sin90, cos90, position[1] + FSIZE]];
+        assert!(eq_float_with_accuracy(transformed_right, expected_right, 5));
     }
 }

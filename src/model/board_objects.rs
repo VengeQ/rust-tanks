@@ -1,5 +1,4 @@
 use crate::types::*;
-use crate::CELL_COUNT;
 use std::fmt;
 
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
@@ -18,13 +17,20 @@ pub enum Direction {
     Left,
 }
 
-#[derive(Debug, Clone)]
+impl Default for  Direction{
+    fn default() -> Self {
+        Direction::Top
+    }
+}
+
+#[derive(Debug, Clone,Default)]
 pub struct Player {
     pub location: Location,
     pub lives: usize,
     pub state: State,
 }
 
+#[allow(dead_code)]
 impl Player {
     pub fn new(location: Location) -> Self {
         Self {
@@ -46,7 +52,7 @@ impl Player {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone,Default)]
 pub struct State {}
 
 pub trait GameObject {
@@ -141,6 +147,7 @@ impl Nothing {
 mod tests {
     use super::*;
     use crate::model::Direction;
+    use crate::CELL_COUNT;
 
     #[test]
     fn new_player_test() {
@@ -153,7 +160,7 @@ mod tests {
                 let start_lives = 3;
 
                 assert_eq!(player.location.0, position);
-                assert_eq!(player.lives, 3);
+                assert_eq!(player.lives, start_lives);
             }
         }
     }

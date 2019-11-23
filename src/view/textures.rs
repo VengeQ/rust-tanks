@@ -9,11 +9,12 @@ use crate::model::{Area, Direction};
 macro_rules! map {
     ($($key:expr => $value:expr),*) =>{
         {
-            let mut map=std::collections::HashMap::new();
+            #[allow(unused_mut)]
+            let mut result=std::collections::HashMap::new();
             $(
-                map.insert($key, $value);
+                result.insert($key, $value);
             )*
-            map
+            result
         }
     };
 }
@@ -113,11 +114,11 @@ mod tests {
 
     #[test]
     fn map_macro_test() {
-        let x: HashMap<String, String> = map![];
-        assert_eq!(x, HashMap::<String, String>::new());
-        let y1 = map![1 => "one".to_owned()];
-        let mut y2 = HashMap::new();
-        y2.insert(1, "one".to_owned());
-        assert_eq!(y1, y2);
+        let mut x: HashMap<usize, String> = map![];
+        assert_eq!(x, HashMap::<usize, String>::new());
+        x.insert(1,"one".to_owned());
+
+        let y = map![1 => "one".to_owned()];
+        assert_eq!(y, x);
     }
 }
